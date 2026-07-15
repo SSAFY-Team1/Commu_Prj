@@ -1,10 +1,15 @@
 <template>
-  <div class="p-4 bg-white rounded shadow flex flex-col">
-    <div class="text-sm text-gray-500">{{ label }}</div>
-    <div class="text-2xl font-bold mt-2">{{ value }}</div>
-  </div>
+  <article class="panel p-4">
+    <p class="text-sm font-semibold text-slate-500">{{ label }}</p>
+    <p class="mt-2 text-3xl font-bold text-slate-900">{{ value }}</p>
+    <p v-if="hint" class="mt-1 text-xs text-slate-500">{{ hint }}</p>
+  </article>
 </template>
 
 <script setup>
-const props = defineProps({ label: { type: String, required: true }, value: { type: [String, Number], default: '--' } })
+defineProps({
+  label: { type: String, required: true },
+  value: { type: [String, Number], default: '--' },
+  hint: { type: String, default: '' }
+})
 </script>

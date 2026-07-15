@@ -1,10 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex flex-col">
+  <div class="min-h-screen bg-slate-50 text-slate-900">
     <Header />
-    <main class="container-max flex-1 p-4">
-      <div class="px-4 sm:px-6 lg:px-8">
-        <router-view />
-      </div>
+    <main class="mx-auto min-h-[calc(100vh-168px)] w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <router-view />
     </main>
     <Footer />
     <Chatbot />

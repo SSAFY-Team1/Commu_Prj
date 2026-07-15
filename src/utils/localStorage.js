@@ -1,29 +1,48 @@
 const KEY = 'localhub_posts'
 
+function normalizePost(post) {
+  return {
+    id: String(post.id || Date.now()),
+    title: post.title || '',
+    content: post.content || '',
+    password: post.password || '',
+    created: post.created || new Date().toLocaleString(),
+    category: post.category || '자유',
+    views: Number(post.views || 0),
+    likes: Number(post.likes || 0),
+    bookmarks: Number(post.bookmarks || 0)
+  }
+}
+
 export function getPosts() {
   try {
-    return JSON.parse(localStorage.getItem(KEY) || '[]')
-  } catch (e) {
+    const posts = JSON.parse(localStorage.getItem(KEY) || '[]')
+    return Array.isArray(posts) ? posts.map(normalizePost) : []
+  } catch (error) {
     return []
   }
 }
 
 export function savePost(post) {
   const posts = getPosts()
-  posts.unshift(post)
+  posts.unshift(normalizePost(post))
   localStorage.setItem(KEY, JSON.stringify(posts))
 }
 
 export function updatePost(id, changes) {
   const posts = getPosts()
-  const i = posts.findIndex(p => p.id === id)
-  if (i >= 0) {
-    posts[i] = { ...posts[i], ...changes }
+  const index = posts.findIndex((post) => post.id === id)
+  if (index >= 0) {
+    posts[index] = normalizePost({ ...posts[index], ...changes })
     localStorage.setItem(KEY, JSON.stringify(posts))
   }
 }
 
 export function deletePost(id) {
-  const posts = getPosts().filter(p => p.id !== id)
+  const posts = getPosts().filter((post) => post.id !== id)
   localStorage.setItem(KEY, JSON.stringify(posts))
+}
+
+export function clearPosts() {
+  localStorage.removeItem(KEY)
 }
