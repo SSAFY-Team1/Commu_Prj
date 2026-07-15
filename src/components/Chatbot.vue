@@ -2,29 +2,29 @@
   <div>
     <button
       type="button"
-      class="fixed bottom-4 right-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-xl text-white shadow-lg hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+      class="fixed bottom-4 right-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-sm font-bold text-white shadow-xl shadow-brand-500/25 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2"
       aria-label="챗봇 열기"
       @click="open = true"
     >
       AI
     </button>
 
-    <section v-if="open" class="fixed inset-x-3 bottom-20 z-50 rounded border border-slate-200 bg-white shadow-xl sm:left-auto sm:right-4 sm:w-96">
-      <header class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+    <section v-if="open" class="fixed inset-x-3 bottom-20 z-50 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl sm:left-auto sm:right-4 sm:w-96">
+      <header class="flex items-center justify-between bg-slate-900 px-4 py-3 text-white">
         <div>
-          <h2 class="font-bold text-slate-900">LocalHub 챗봇</h2>
-          <p class="text-xs text-slate-500">제공 데이터 기준으로 답변합니다.</p>
+          <h2 class="font-bold">LocalHub 챗봇</h2>
+          <p class="text-xs text-slate-300">제공 데이터 기준으로 답변합니다.</p>
         </div>
-        <button type="button" class="rounded px-2 text-xl text-slate-500 hover:bg-slate-100" aria-label="챗봇 닫기" @click="open = false">×</button>
+        <button type="button" class="rounded px-2 text-xl leading-none text-slate-200 hover:bg-white/10 hover:text-white" aria-label="챗봇 닫기" @click="open = false">×</button>
       </header>
 
-      <div class="h-80 space-y-3 overflow-y-auto px-4 py-3">
-        <div v-if="messages.length === 0" class="rounded bg-slate-50 p-3 text-sm text-slate-600">
+      <div class="h-80 space-y-3 overflow-y-auto bg-slate-50 px-4 py-3">
+        <div v-if="messages.length === 0" class="rounded border border-slate-200 bg-white p-3 text-sm text-slate-600">
           예: "종로구 관광지 추천해줘", "서울 축제 알려줘"
         </div>
 
         <div v-for="(message, index) in messages" :key="index" :class="message.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
-          <div :class="['max-w-[82%] break-words rounded px-3 py-2 text-sm', message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-800']">
+          <div :class="['max-w-[82%] break-words rounded-lg px-3 py-2 text-sm shadow-sm', message.role === 'user' ? 'bg-brand-500 text-white' : 'border border-slate-200 bg-white text-slate-800']">
             {{ message.text }}
           </div>
         </div>
@@ -35,18 +35,20 @@
         </div>
       </div>
 
-      <form class="border-t border-slate-200 p-3" @submit.prevent="send">
+      <form class="border-t border-slate-200 bg-white p-3" @submit.prevent="send">
         <label class="sr-only" for="chat-question">질문</label>
         <div class="flex gap-2">
           <input
             id="chat-question"
             v-model="input"
-            class="field"
+            class="field min-w-0 flex-1"
             maxlength="300"
             placeholder="질문을 입력하세요"
             :disabled="loading"
           />
-          <ButtonPrimary type="submit" :disabled="!canSend">전송</ButtonPrimary>
+          <ButtonPrimary type="submit" :disabled="!canSend" class="min-w-16 border border-brand-700 bg-brand-600 text-white hover:bg-brand-700">
+            전송
+          </ButtonPrimary>
         </div>
         <p class="mt-2 text-xs text-slate-500">최대 300자, 관련 데이터 최대 5건만 전송합니다.</p>
         <p v-if="errorMessage" class="mt-2 text-xs font-medium text-rose-600">{{ errorMessage }}</p>
