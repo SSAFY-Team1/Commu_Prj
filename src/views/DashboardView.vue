@@ -1,33 +1,40 @@
 <template>
-  <div class="p-4 md:p-6 space-y-6">
+  <div class="space-y-6">
+    <header>
+      <p class="text-sm font-semibold text-brand-700">데이터 시각화</p>
+      <h1 class="mt-1 text-2xl font-bold text-slate-900">서울 지역 정보 대시보드</h1>
+      <p class="mt-2 text-sm text-slate-600">전체 서울 JSON과 현재 브라우저의 커뮤니티 데이터를 기준으로 집계합니다.</p>
+    </header>
 
-    <section class="grid grid-cols-3 gap-2 md:gap-4">
+    <section class="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
       <KpiCard label="전체 콘텐츠" :value="total" />
       <KpiCard label="카테고리 수" :value="categoryCount" />
       <KpiCard label="커뮤니티 게시글" :value="postCount" />
     </section>
 
-    <section class="grid grid-cols-[45%_55%] gap-6">
+    <section v-if="loading" class="panel p-6 text-sm text-slate-600">대시보드 데이터를 불러오는 중입니다...</section>
+
+    <section v-else class="grid grid-cols-1 gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:gap-6">
     
       <div class="panel p-4">
         <h2 class="font-semibold text-slate-900 mb-4">콘텐츠 카테고리 비율</h2>
-        <div class="h-[260px] flex justify-center items-center">
+        <div class="flex h-72 items-center justify-center sm:h-80 lg:h-[360px]">
           <canvas ref="doughnutCanvas"></canvas>
         </div>
       </div>
 
-      <div class="lg:col-span-2 grid grid-cols-1 gap-6">
+      <div class="grid grid-cols-1 gap-4 lg:gap-6">
         
         <div class="panel p-4">
           <h2 class="font-semibold text-slate-900 mb-4">콘텐츠 카테고리별 건수</h2>
-          <div class="h-36">
+          <div class="h-56 sm:h-64">
             <canvas ref="barCanvas"></canvas>
           </div>
         </div>
         
         <div class="panel p-4">
           <h2 class="font-semibold text-slate-900 mb-4">콘텐츠 수 Top 10 자치구</h2>
-          <div class="h-40">
+          <div class="h-64 sm:h-72">
             <canvas ref="districtCanvas"></canvas>
           </div>
         </div>
@@ -48,8 +55,8 @@
         파이 차트에서 카테고리를 클릭해 추천 지역을 확인하세요.
       </div>
 
-      <div v-else class="grid gap-3 grid-cols-5">
-        <article v-for="item in recommendedItems" :key="item.id" class="panel overflow-hidden min-w-0">
+      <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <router-link v-for="item in recommendedItems" :key="item.id" :to="`/place/${encodeURIComponent(item.id)}`" class="panel min-w-0 overflow-hidden transition hover:border-brand-300 hover:shadow-md">
           <div class="flex h-24 items-center justify-center bg-slate-100">
             <img v-if="item.thumbnail" :src="item.thumbnail" :alt="item.title" class="h-full w-full object-cover" />
             <span v-else class="text-xs text-slate-500">이미지 없음</span>
@@ -63,7 +70,7 @@
             <h3 class="mt-2 line-clamp-2 font-bold text-slate-900 text-sm">{{ item.title }}</h3>
             <p class="mt-2 line-clamp-2 text-xs text-slate-600">{{ item.address }}</p>
           </div>
-        </article>
+        </router-link>
       </div>
     </section>
   </div>
