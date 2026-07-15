@@ -6,7 +6,7 @@
       aria-label="챗봇 열기"
       @click="open = true"
     >
-      ?
+      AI
     </button>
 
     <section v-if="open" class="fixed inset-x-3 bottom-20 z-50 rounded border border-slate-200 bg-white shadow-xl sm:left-auto sm:right-4 sm:w-96">

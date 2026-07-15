@@ -28,7 +28,7 @@
     <section v-if="loading" class="panel p-6 text-sm text-slate-600">데이터를 불러오는 중입니다...</section>
     <section v-else-if="filteredItems.length === 0" class="panel p-6 text-sm text-slate-600">검색 결과가 없습니다.</section>
     <section v-else class="grid gap-4 md:grid-cols-2">
-      <article v-for="item in pagedItems" :key="item.id" class="panel grid grid-cols-[96px_1fr] overflow-hidden">
+      <router-link v-for="item in pagedItems" :key="item.id" :to="`/place/${encodeURIComponent(item.id)}`" class="panel grid grid-cols-[96px_1fr] overflow-hidden transition hover:border-brand-300 hover:shadow-md">
         <div class="flex min-h-28 items-center justify-center bg-slate-100">
           <img v-if="item.thumbnail" :src="item.thumbnail" :alt="item.title" class="h-full w-full object-cover" />
           <span v-else class="text-xs text-slate-500">이미지 없음</span>
@@ -42,7 +42,7 @@
           <p class="mt-1 text-sm text-slate-600">{{ item.address }}</p>
           <p class="mt-2 text-xs text-slate-500">{{ item.tel }}</p>
         </div>
-      </article>
+      </router-link>
     </section>
 
     <div v-if="filteredItems.length > pageSize" class="flex justify-center">

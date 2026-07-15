@@ -38,7 +38,7 @@
 
       <div v-if="loading" class="panel p-6 text-sm text-slate-600">데이터를 불러오는 중입니다...</div>
       <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <article v-for="item in featuredItems" :key="item.id" class="panel overflow-hidden">
+        <router-link v-for="item in featuredItems" :key="item.id" :to="`/place/${encodeURIComponent(item.id)}`" class="panel overflow-hidden transition hover:border-brand-300 hover:shadow-md">
           <div class="flex h-36 items-center justify-center bg-slate-100">
             <img v-if="item.thumbnail" :src="item.thumbnail" :alt="item.title" class="h-full w-full object-cover" />
             <span v-else class="text-sm text-slate-500">이미지 없음</span>
@@ -52,7 +52,7 @@
             <h3 class="mt-2 line-clamp-2 font-bold text-slate-900">{{ item.title }}</h3>
             <p class="mt-2 line-clamp-2 text-sm text-slate-600">{{ item.address }}</p>
           </div>
-        </article>
+        </router-link>
       </div>
     </section>
   </div>
