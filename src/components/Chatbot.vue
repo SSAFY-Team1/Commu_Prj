@@ -2,7 +2,7 @@
   <div>
     <button
       type="button"
-      class="fixed bottom-4 right-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-xl text-white shadow-lg hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2"
+      class="fixed bottom-4 right-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-xl text-white shadow-lg hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
       aria-label="챗봇 열기"
       @click="open = true"
     >
@@ -24,7 +24,7 @@
         </div>
 
         <div v-for="(message, index) in messages" :key="index" :class="message.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
-          <div :class="['max-w-[82%] rounded px-3 py-2 text-sm', message.role === 'user' ? 'bg-brand-500 text-white' : 'bg-slate-100 text-slate-800']">
+          <div :class="['max-w-[82%] break-words rounded px-3 py-2 text-sm', message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-800']">
             {{ message.text }}
           </div>
         </div>
@@ -46,41 +46,61 @@
             placeholder="질문을 입력하세요"
             :disabled="loading"
           />
-          <ButtonPrimary :disabled="loading || !input.trim()" @click="send">전송</ButtonPrimary>
+          <ButtonPrimary type="submit" :disabled="!canSend">전송</ButtonPrimary>
         </div>
         <p class="mt-2 text-xs text-slate-500">최대 300자, 관련 데이터 최대 5건만 전송합니다.</p>
+        <p v-if="errorMessage" class="mt-2 text-xs font-medium text-rose-600">{{ errorMessage }}</p>
       </form>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import ButtonPrimary from './ButtonPrimary.vue'
 import Spinner from './Spinner.vue'
 import { sendChat } from '../services/chatApi'
 import { searchItems, toChatContext } from '../utils/dataLoader'
 
+const MAX_QUESTION_LENGTH = 300
+const MAX_CONTEXT_ITEMS = 5
+
 const open = ref(false)
 const messages = ref([])
 const input = ref('')
 const loading = ref(false)
+const errorMessage = ref('')
+
+const canSend = computed(() => !!input.value.trim() && !loading.value)
 
 async function send() {
-  const question = input.value.trim()
-  if (!question || loading.value) return
+  const question = String(input.value || '').trim()
+  if (loading.value) return
 
+  if (!question) {
+    errorMessage.value = '질문을 입력하세요.'
+    return
+  }
+
+  if (question.length > MAX_QUESTION_LENGTH) {
+    errorMessage.value = `질문은 ${MAX_QUESTION_LENGTH}자 이내로 입력해 주세요.`
+    return
+  }
+
+  errorMessage.value = ''
   messages.value.push({ role: 'user', text: question })
   input.value = ''
   loading.value = true
 
   try {
     const matched = await searchItems(question)
-    const context = toChatContext(matched, 5)
+    const context = toChatContext(matched, MAX_CONTEXT_ITEMS)
     const response = await sendChat(question, context)
-    messages.value.push({ role: 'bot', text: response.answer || '응답을 찾지 못했습니다.' })
+    messages.value.push({ role: 'bot', text: response.answer || '제공된 데이터에서 답변을 찾을 수 없습니다.' })
   } catch (error) {
-    messages.value.push({ role: 'bot', text: '챗봇 응답 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' })
+    const userMessage = error?.message || '챗봇 응답 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
+    messages.value.push({ role: 'bot', text: userMessage })
+    errorMessage.value = '오류가 발생했습니다. 다시 전송해 주세요.'
   } finally {
     loading.value = false
   }
