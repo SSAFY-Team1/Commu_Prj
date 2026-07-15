@@ -2,7 +2,18 @@
   <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
       <router-link to="/" class="flex items-center gap-2" @click="open = false">
-        <span class="flex h-9 w-9 items-center justify-center rounded bg-brand-500 text-sm font-bold text-white">LH</span>
+        <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500 text-white shadow-sm" aria-hidden="true">
+          <svg class="h-6 w-6" viewBox="0 0 32 32" fill="none" focusable="false">
+            <path
+              d="M16 29s9-8.3 9-16.1A9 9 0 0 0 7 12.9C7 20.7 16 29 16 29Z"
+              fill="currentColor"
+            />
+            <path d="M11.5 10.5h9v6.25h-4.05l-2.95 2.4v-2.4h-2a2 2 0 0 1-2-2V12.5a2 2 0 0 1 2-2Z" fill="#2563EB" />
+            <circle cx="13.25" cy="13.65" r="0.8" fill="white" />
+            <circle cx="16" cy="13.65" r="0.8" fill="white" />
+            <circle cx="18.75" cy="13.65" r="0.8" fill="white" />
+          </svg>
+        </span>
         <span>
           <span class="block text-base font-bold leading-tight text-slate-900">LocalHub 서울</span>
           <span class="block text-xs leading-tight text-slate-500">공공데이터 지역 정보 커뮤니티</span>
