@@ -28,20 +28,21 @@ export default {
     const open = ref(false)
     const messages = ref([])
     const input = ref('')
+    const loading = ref(false)
 
     async function send() {
       if (!input.value.trim()) return
       const userText = input.value.trim()
       messages.value.push({ role: 'user', text: userText })
       input.value = ''
-      messages.value.push({ role: 'system', text: 'Loading...' })
+      loading.value = true
       try {
         const res = await sendChat(userText, {})
-        messages.value.pop()
         messages.value.push({ role: 'bot', text: res?.answer || '응답 없음' })
       } catch (e) {
-        messages.value.pop()
         messages.value.push({ role: 'bot', text: '오류가 발생했습니다.' })
+      } finally {
+        loading.value = false
       }
     }
 
@@ -49,3 +50,7 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.chat-loading { display: flex; align-items: center; gap: 0.5rem }
+</style>
