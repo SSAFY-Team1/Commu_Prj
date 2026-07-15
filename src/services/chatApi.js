@@ -29,9 +29,18 @@ export async function sendChat(question, context = []) {
     body: JSON.stringify({ question: trimmedQuestion, context: normalizedContext })
   })
 
-  const data = await res.json().catch(() => ({}))
+  let data = null
+  let text = null
+
+  try {
+    data = await res.json()
+  } catch (parseError) {
+    text = await res.text().catch(() => '')
+  }
+
   if (!res.ok) {
-    throw new Error(data.error || '챗봇 요청에 실패했습니다.')
+    const message = data?.error || text || `챗봇 요청에 실패했습니다. status=${res.status}`
+    throw new Error(message)
   }
 
   return data
