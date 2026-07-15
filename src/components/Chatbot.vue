@@ -1,12 +1,18 @@
 <template>
   <div>
     <button
+      v-if="!open"
       type="button"
-      class="fixed bottom-4 right-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-sm font-bold text-white shadow-xl shadow-brand-500/25 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2"
+      class="fixed bottom-4 right-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-xl shadow-brand-600/30 ring-1 ring-white/70 transition hover:-translate-y-0.5 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2"
       aria-label="챗봇 열기"
       @click="open = true"
     >
-      AI
+      <svg class="h-7 w-7" viewBox="0 0 28 28" fill="none" aria-hidden="true" focusable="false">
+        <path d="M6 6.5h16a3 3 0 0 1 3 3v7.75a3 3 0 0 1-3 3h-8.25L8.5 24v-3.75H6a3 3 0 0 1-3-3V9.5a3 3 0 0 1 3-3Z" fill="currentColor" />
+        <circle cx="10" cy="13.5" r="1.35" fill="#2563EB" />
+        <circle cx="14" cy="13.5" r="1.35" fill="#2563EB" />
+        <circle cx="18" cy="13.5" r="1.35" fill="#2563EB" />
+      </svg>
     </button>
 
     <section v-if="open" class="fixed inset-x-3 bottom-20 z-50 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl sm:left-auto sm:right-4 sm:w-96">
@@ -46,9 +52,13 @@
             placeholder="질문을 입력하세요"
             :disabled="loading"
           />
-          <ButtonPrimary type="submit" :disabled="!canSend" class="min-w-16 border border-brand-700 bg-brand-600 text-white hover:bg-brand-700">
+          <button
+            type="submit"
+            :disabled="!canSend"
+            class="inline-flex min-w-16 items-center justify-center rounded bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:border disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
+          >
             전송
-          </ButtonPrimary>
+          </button>
         </div>
         <p class="mt-2 text-xs text-slate-500">최대 300자, 관련 데이터 최대 5건만 전송합니다.</p>
         <p v-if="errorMessage" class="mt-2 text-xs font-medium text-rose-600">{{ errorMessage }}</p>
@@ -59,7 +69,6 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import ButtonPrimary from './ButtonPrimary.vue'
 import Spinner from './Spinner.vue'
 import { sendChat } from '../services/chatApi'
 import { searchItems, toChatContext } from '../utils/dataLoader'
