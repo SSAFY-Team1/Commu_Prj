@@ -14,6 +14,7 @@ import { computed } from 'vue'
 
 const props = defineProps({
   disabled: { type: Boolean, default: false },
+  type: { type: String, default: 'button' },
   variant: { type: String, default: 'primary' }
 })
 
