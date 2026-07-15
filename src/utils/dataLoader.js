@@ -140,6 +140,11 @@ export async function getByCategory(category) {
   return items.filter((item) => item.category === category || item.contentTypeId === String(category))
 }
 
+export async function getItemById(id) {
+  const items = await loadAllData()
+  return items.find((item) => item.id === String(id)) || null
+}
+
 export async function searchItems(keyword, options = {}) {
   const items = await getByCategory(options.category)
   const query = String(keyword || '').trim().toLowerCase()
