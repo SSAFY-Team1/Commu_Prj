@@ -26,6 +26,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { loadSampleData } from '../utils/dataLoader'
+import { getPosts } from '../utils/localStorage'
 import Chart from 'chart.js/auto'
 import KpiCard from '../components/KpiCard.vue'
 
@@ -33,7 +34,7 @@ const barCanvas = ref(null)
 const doughnutCanvas = ref(null)
 let charts = []
 
-const total = ref('--')
+  const total = ref('--')
 const categoryCount = ref('--')
 const postCount = ref('--')
 
@@ -49,7 +50,8 @@ function groupByCategory(items) {
 onMounted(async () => {
   const data = await loadSampleData()
   total.value = data.length
-  postCount.value = 0 // no posts integration yet
+  // 게시글 수는 localStorage 기준
+  postCount.value = getPosts().length
   const map = groupByCategory(data)
   categoryCount.value = map.size
 
