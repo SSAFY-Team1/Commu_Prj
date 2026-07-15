@@ -1,20 +1,33 @@
-# CODEOWNERS 파일 예시
-# 실제 GitHub 사용자/팀 핸들로 교체하세요.
+# Replace these placeholders with actual GitHub users or teams before enabling CODEOWNERS.
 
-# 루트 문서 관련
-/docs/ @team-docs
+# Team A: PM, common UI, routing, deployment, docs
+/.github/ @team-a
+/README.md @team-a
+/docs/ @team-a
+/index.html @team-a
+/netlify.toml @team-a
+/src/App.vue @team-a
+/src/main.js @team-a
+/src/router/ @team-a
+/src/assets/ @team-a
+/src/components/Header.vue @team-a
+/src/components/Footer.vue @team-a
+/src/components/ButtonPrimary.vue @team-a
+/src/components/Modal.vue @team-a
+/src/components/Spinner.vue @team-a
+/src/views/HomeView.vue @team-a
+/src/views/CategoryView.vue @team-a
 
-# 공통 컴포넌트 (UI, layout)
-/src/components/ @team-a
+# Team B: data and dashboard
+/public/data/ @team-b
+/src/utils/dataLoader.js @team-b
+/src/utils/dataLoader.test.js @team-b
+/src/views/DashboardView.vue @team-b
+/src/components/KpiCard.vue @team-b
 
-# 데이터/유틸
-/src/utils/ @team-b
-
-# 커뮤니티 뷰 및 챗봇
+# Team C: community and chatbot
 /src/views/CommunityView.vue @team-c
 /src/components/Chatbot.vue @team-c
-
-# Netlify 함수
+/src/services/chatApi.js @team-c
+/src/utils/localStorage.js @team-c
 /netlify/functions/ @team-c
-
-# 위 핸들들은 레포지토리의 실제 GitHub 사용자명 또는 팀명으로 바꿔 사용하세요.

@@ -1,61 +1,125 @@
-# Team A (레이아웃·공통 UI·배포) 작업 목록
+# Team A 작업 지시서 — PM, 공통 UI, PR 최종 검토
 
-목표: 1일 내에 레이아웃과 배포 준비를 완료하고 다른 팀원이 안정적으로 병렬 개발을 시작할 수 있도록 공통 컴포넌트·스타일을 제공합니다.
+담당자: 팀원 A  
+브랜치: `feature/layout-a`  
+역할: 팀장, PM, 공통 UI/UX, 배포, PR 최종 검토
 
-우선순위: 빠르게 통합 가능한 작은 단위로 작업을 쪼개세요.
+## 목표
 
----
+팀원 B와 C가 기능 구현에 집중할 수 있도록 공통 구조와 디자인 기준을 잡고, PR 충돌을 관리하며, 최종 산출물과 배포 품질을 책임진다.
 
-## 0) 준비 (30분)
-- 브랜치: `feature/layout-a` 생성 및 사용
-- `npm install` 실행(문제 발생 시 `docs/BOOTSTRAP.md`의 npm Troubleshooting 참고)
-- `npm run dev`로 앱 실행 확인
+## Team A 책임
 
-## 1) 공통 레이아웃 (1.5시간)
-- 파일:
-  - `src/App.vue` (레이아웃, 공통 컨테이너)
-  - `src/components/Header.vue` (네비게이션)
-  - `src/components/Footer.vue`
-- 작업:
-  - 헤더: 브랜드 텍스트, 주요 링크(홈/대시보드/커뮤니티)
-  - 반응형 레이아웃: Tailwind로 색상·간격·그리드 설정
-  - 공통 컨테이너(max-width, padding) 정의
+- 프로젝트 범위 관리
+- 공통 레이아웃과 UI/UX 기준 수립
+- Header, Footer, 공통 버튼, 모달 등 공통 컴포넌트 관리
+- 라우터와 배포 설정 관리
+- 팀원 B/C PR 최종 리뷰
+- Netlify 배포와 환경변수 확인
+- README, WBS, 기능 명세서, 발표자료 통합
+- 의뢰서와 최종 기획서 차이를 발표자료에 설명
 
-## 2) 공통 컴포넌트 제공 (1.5시간)
-- 파일(생성):
-  - `src/components/ButtonPrimary.vue` (재사용 버튼)
-  - `src/components/Modal.vue` (재사용 모달)
-- 작업:
-  - `@apply` 또는 Tailwind 클래스로 일관된 스타일을 제공
-  - 문서(README 또는 컴포넌트 상단 주석)에 사용법 간단 명시
+## 담당 파일
 
-## 3) Tailwind 설정 확인 (30분)
-- `tailwind.config.cjs`의 `content`에 src 경로가 들어있는지 확인
-- `src/assets/tailwind.css`가 `src/main.js`에서 import 되었는지 확인
+Team A가 주로 수정한다.
 
-## 4) Netlify 배포 준비 (1시간)
-- `netlify.toml` 검토(빌드·publish·functions 경로)
-- 로컬 함수 테스트: `npx netlify dev` (환경변수 `.env` 필요 시 로컬에만 저장)
-- Netlify 사이트에 `OPENAI_API_KEY` 등록(프로덕션 환경)
+- `src/App.vue`
+- `src/router/index.js`
+- `src/views/HomeView.vue`
+- `src/views/CategoryView.vue`
+- `src/components/Header.vue`
+- `src/components/Footer.vue`
+- `src/components/ButtonPrimary.vue`
+- `src/components/Modal.vue`
+- `src/components/Spinner.vue`
+- `src/assets/tailwind.css`
+- `tailwind.config.cjs`
+- `index.html`
+- `netlify.toml`
+- `README.md`
+- `docs/`
+- `.github/`
 
-## 5) 문서화·PR (30분)
-- 변경 목록 요약(한 줄씩) 작성
-- PR 템플릿을 채워 작은 PR을 생성
-- PR 체크리스트: 빌드 성공, UI 스크린샷 첨부, 리뷰어 요청
+## Team A가 직접 수정하지 않는 영역
 
----
+Team B/C 브랜치 작업 중에는 아래 파일을 직접 수정하지 않는다. 필요하면 PR 리뷰 코멘트나 별도 합의 후 수정한다.
 
-## 소스 변경 권장 규칙(충돌 방지)
-- 공통파일(라우터, package.json, netlify.toml)은 변경 전 팀 합의
-- 작은 단위로 커밋: 한 기능/컴포넌트당 3-5 커밋 권장
-- 브랜치 작업 전 항상 최신화: `git fetch origin && git rebase origin/main`
+Team B 담당:
 
----
+- `src/utils/dataLoader.js`
+- `src/views/DashboardView.vue`
+- `src/components/KpiCard.vue`
+- `public/data/`
 
-## 예시 커밋 메시지
-- `feat(layout): add responsive header (A)`
-- `chore(styles): add ButtonPrimary component (A)`
+Team C 담당:
 
----
+- `src/views/CommunityView.vue`
+- `src/components/Chatbot.vue`
+- `src/services/chatApi.js`
+- `src/utils/localStorage.js`
+- `netlify/functions/chat.mjs`
 
-필요하면 제가 `ButtonPrimary.vue`와 `Modal.vue`의 간단 템플릿을 생성해 드리겠습니다. 원하시면 생성하세요.
+## UI/UX 가이드라인
+
+### 전체 톤
+
+- 관광/지역 정보 서비스답게 밝고 신뢰감 있는 톤을 유지한다.
+- 과한 장식보다 정보 탐색, 검색, 비교가 쉬운 화면을 우선한다.
+- 모바일에서도 주요 기능이 가려지지 않게 한다.
+
+### 레이아웃
+
+- 상단 Header에는 홈, 대시보드, 커뮤니티 주요 이동 링크를 유지한다.
+- 페이지 본문은 공통 max-width와 padding을 유지한다.
+- 각 팀은 자기 화면 내부 레이아웃만 조정한다.
+- 공통 레이아웃 변경은 Team A만 진행한다.
+
+### 컴포넌트
+
+- 주요 CTA는 `ButtonPrimary.vue`를 우선 사용한다.
+- 모달이 필요하면 `Modal.vue`를 사용하거나 Team A에게 확장을 요청한다.
+- 로딩 표시는 `Spinner.vue`를 우선 사용한다.
+- 새 공통 컴포넌트가 필요하면 Team A가 생성한다.
+
+### 접근성
+
+- 버튼은 실제 `button` 요소를 사용한다.
+- 입력창에는 placeholder만 의존하지 말고 필요한 경우 label 또는 aria-label을 둔다.
+- 이미지에는 alt를 둔다.
+- 키보드로 주요 기능을 사용할 수 있게 한다.
+
+### 데이터 표시
+
+- 주소, 이미지, 전화번호가 없을 때 빈 화면이 나오지 않게 한다.
+- localStorage 기반 통계는 “현재 브라우저 기준”임을 명확히 한다.
+- 한국관광공사 TourAPI 출처와 공공누리 제3유형 라이선스를 표시한다.
+
+## PR 리뷰 기준
+
+Team A는 PR에서 아래를 확인한다.
+
+- 담당 범위 밖 파일을 수정하지 않았는가
+- `npm run build`가 성공했는가
+- `npm run test -- --run`이 성공했는가
+- 화면이 모바일에서 깨지지 않는가
+- OpenAI 키가 노출되지 않았는가
+- 전체 JSON을 챗봇 요청에 통째로 보내지 않는가
+- 빈 데이터/오류 상태가 처리되는가
+- PR 본문에 테스트 방법이 적혀 있는가
+
+## 최종 통합 순서
+
+1. Team A 공통 UI/라우터/배포 기준 확정
+2. Team B 대시보드 PR 리뷰 및 머지
+3. Team C 커뮤니티/챗봇 PR 리뷰 및 머지
+4. 충돌 해결 및 통합 QA
+5. Netlify 환경변수 등록
+6. Production 배포
+7. 기능 명세서, WBS, 발표자료 최종 정리
+
+## 완료 기준
+
+- Team B/C PR이 main에 안정적으로 병합됨
+- Netlify Production URL에서 홈/대시보드/커뮤니티/챗봇이 동작함
+- README와 발표자료에 환경변수, 출처, 기능 범위가 명시됨
+- 제출 산출물 전체가 준비됨
