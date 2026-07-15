@@ -24,7 +24,7 @@
         </div>
 
         <div v-for="(message, index) in messages" :key="index" :class="message.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
-          <div :class="['max-w-[82%] rounded px-3 py-2 text-sm', message.role === 'user' ? 'bg-brand-500 text-white' : 'bg-slate-100 text-slate-800']">
+          <div :class="['max-w-[82%] break-words rounded px-3 py-2 text-sm', message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-800']">
             {{ message.text }}
           </div>
         </div>
