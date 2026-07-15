@@ -6,7 +6,8 @@
         <p>Vue 3 + Vite 기반 지역 정보 공유 커뮤니티 MVP</p>
       </div>
       <p class="max-w-2xl">
-        이 서비스는 한국관광공사 TourAPI 4.0 데이터를 활용합니다. 출처: 한국관광공사, 라이선스: 공공누리 제3유형.
+        이 서비스는 한국관광공사 TourAPI 4.0 데이터를 활용합니다.
+        <router-link to="/data-source" class="font-semibold text-brand-700 hover:underline">데이터 출처 보기</router-link>
       </p>
     </div>
   </footer>
