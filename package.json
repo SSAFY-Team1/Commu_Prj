@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "chart.js": "^4.4.0",
+    "echarts": "^6.1.0",
+    "leaflet": "^1.9.4",
     "vue": "^3.3.4",
+    "vue-echarts": "^8.0.1",
     "vue-router": "^4.2.4"
   },
   "devDependencies": {
