@@ -23,6 +23,7 @@
         <div class="h-[260px]">
           <canvas ref="districtCanvas"></canvas>
         </div>
+        
       </div>
     </section>
 
@@ -67,6 +68,29 @@
             </div>
           </article>
         </div>
+        <p class="text-sm text-slate-500">선택된 카테고리: <span class="font-semibold">{{ selectedCategory || '없음' }}</span></p>
+      </div>
+
+      <div v-if="!selectedCategory" class="panel p-4 text-sm text-slate-600">
+        파이 차트에서 카테고리를 클릭해 추천 지역을 확인하세요.
+      </div>
+
+      <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <router-link v-for="item in recommendedItems" :key="item.id" :to="`/place/${encodeURIComponent(item.id)}`" class="panel min-w-0 overflow-hidden transition hover:border-brand-300 hover:shadow-md">
+          <div class="flex h-24 items-center justify-center bg-slate-100">
+            <img v-if="item.thumbnail" :src="item.thumbnail" :alt="item.title" class="h-full w-full object-cover" />
+            <span v-else class="text-xs text-slate-500">이미지 없음</span>
+          </div>
+          <div class="p-3">
+            <div class="flex items-center gap-2 text-[11px] font-semibold text-brand-700">
+              <span>{{ item.category }}</span>
+              <span class="text-slate-300">/</span>
+              <span>{{ item.district }}</span>
+            </div>
+            <h3 class="mt-2 line-clamp-2 font-bold text-slate-900 text-sm">{{ item.title }}</h3>
+            <p class="mt-2 line-clamp-2 text-xs text-slate-600">{{ item.address }}</p>
+          </div>
+        </router-link>
       </div>
     </section>
   </div>
