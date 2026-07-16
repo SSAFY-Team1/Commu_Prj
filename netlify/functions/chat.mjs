@@ -1,5 +1,5 @@
 const MAX_QUESTION_LENGTH = 300
-const MAX_CONTEXT_ITEMS = 5
+const MAX_CONTEXT_ITEMS = 12
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses'
 const DEFAULT_MODEL = 'gpt-5-mini'
 const FALLBACK_MODELS = ['gpt-4.1-mini', 'gpt-4o-mini']
@@ -16,11 +16,25 @@ function normalizeContext(context) {
   if (!Array.isArray(context)) return []
 
   return context.slice(0, MAX_CONTEXT_ITEMS).map((item) => ({
+    type: String(item?.type || 'place').slice(0, 20),
     id: String(item?.id || '').slice(0, 80),
     title: String(item?.title || item?.name || '').slice(0, 80),
     category: String(item?.category || '').slice(0, 40),
+    district: String(item?.district || '').slice(0, 40),
     address: String(item?.address || '').slice(0, 120),
-    tel: String(item?.tel || '').slice(0, 40)
+    tel: String(item?.tel || '').slice(0, 40),
+    eventStartDate: String(item?.eventStartDate || '').slice(0, 20),
+    eventEndDate: String(item?.eventEndDate || '').slice(0, 20),
+    eventPlace: String(item?.eventPlace || '').slice(0, 120),
+    playtime: String(item?.playtime || '').slice(0, 120),
+    fee: String(item?.fee || '').slice(0, 120),
+    program: String(item?.program || '').slice(0, 600),
+    description: String(item?.description || '').slice(0, 300),
+    content: String(item?.content || '').slice(0, 300),
+    tags: Array.isArray(item?.tags) ? item.tags.slice(0, 5).map((tag) => String(tag).slice(0, 30)) : [],
+    views: Number(item?.views || 0),
+    likes: Number(item?.likes || 0),
+    bookmarks: Number(item?.bookmarks || 0)
   }))
 }
 
@@ -45,7 +59,15 @@ function fallbackAnswer(question, context, reason = '') {
 
   const items = context
     .map((item, index) => {
-      const details = [item.category, item.address, item.tel ? `문의 ${item.tel}` : '']
+      if (item.type === 'post') {
+        const postDetails = [item.district, item.category, item.tags.length ? `태그 ${item.tags.join(', ')}` : '']
+          .filter(Boolean)
+          .join(' · ')
+        return `${index + 1}. [커뮤니티] ${item.title}${postDetails ? ` (${postDetails})` : ''}`
+      }
+
+      const date = item.eventStartDate || item.eventEndDate ? `${item.eventStartDate || '?'}~${item.eventEndDate || '?'}` : ''
+      const details = [item.category, item.district, date, item.eventPlace || item.address, item.tel ? `문의 ${item.tel}` : '']
         .filter(Boolean)
         .join(' · ')
       return `${index + 1}. ${item.title}${details ? ` (${details})` : ''}`
@@ -57,8 +79,7 @@ function fallbackAnswer(question, context, reason = '') {
 }
 
 async function requestOpenAI(input) {
-  const configuredModel = process.env.OPENAI_MODEL || DEFAULT_MODEL
-  const models = Array.from(new Set([configuredModel, DEFAULT_MODEL, ...FALLBACK_MODELS]))
+  const models = Array.from(new Set([DEFAULT_MODEL, ...FALLBACK_MODELS]))
   let lastError = null
 
   for (const model of models) {
@@ -129,7 +150,7 @@ export async function handler(event) {
     {
       role: 'system',
       content:
-        'You are LocalHub Seoul assistant. Answer in Korean. Use only the provided Seoul public-data context. If the context is insufficient, say that the data is not available. Never invent addresses, phone numbers, or event details.'
+        'You are LocalHub Seoul assistant. Answer in Korean. Use only the provided Seoul public JSON and localStorage community context. If the context is insufficient, say that the provided data is insufficient. Never invent addresses, phone numbers, dates, fees, programs, or event details. Prefer concise bullet lists for recommendations.'
     },
     {
       role: 'user',
