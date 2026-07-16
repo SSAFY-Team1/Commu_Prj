@@ -1,6 +1,34 @@
 const KEY = 'localhub_posts'
 
-export const REGION_OPTIONS = ['서울/경기', '대전/충청', '구미/경북', '광주/전라', '부울경/경남']
+export const DISTRICT_OPTIONS = [
+  '강남구',
+  '강동구',
+  '강북구',
+  '강서구',
+  '관악구',
+  '광진구',
+  '구로구',
+  '금천구',
+  '노원구',
+  '도봉구',
+  '동대문구',
+  '동작구',
+  '마포구',
+  '서대문구',
+  '서초구',
+  '성동구',
+  '성북구',
+  '송파구',
+  '양천구',
+  '영등포구',
+  '용산구',
+  '은평구',
+  '종로구',
+  '중구',
+  '중랑구'
+]
+
+export const DEFAULT_DISTRICT = '중구'
 
 function normalizeTags(tags) {
   if (Array.isArray(tags)) {
@@ -13,8 +41,8 @@ function normalizeTags(tags) {
     .filter(Boolean)
 }
 
-function normalizeRegion(region) {
-  return REGION_OPTIONS.includes(region) ? region : REGION_OPTIONS[0]
+function normalizeDistrict(district) {
+  return DISTRICT_OPTIONS.includes(district) ? district : DEFAULT_DISTRICT
 }
 
 function normalizePost(post) {
@@ -24,7 +52,8 @@ function normalizePost(post) {
     content: post.content || '',
     password: post.password || '',
     created: post.created || new Date().toLocaleString(),
-    region: normalizeRegion(post.region),
+    district: normalizeDistrict(post.district),
+    region: '서울/경기',
     category: post.category || '자유',
     tags: normalizeTags(post.tags),
     image: post.image || '',
