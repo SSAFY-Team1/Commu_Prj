@@ -193,3 +193,8 @@ export function toChatContext(items = [], limit = 5) {
     tel: item.tel
   }))
 }
+
+export async function getItemById(id) {
+  const items = await loadAllData()
+  return items.find((item) => item.id === String(id)) || null
+}
