@@ -3,15 +3,17 @@
     <button
       v-if="!open"
       type="button"
-      class="fixed bottom-4 right-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-xl shadow-brand-600/30 ring-1 ring-white/70 transition hover:-translate-y-0.5 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2"
+      class="fixed bottom-4 right-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-white shadow-xl ring-1 ring-white/70 transition hover:-translate-y-0.5 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
       aria-label="챗봇 열기"
       @click="open = true"
     >
-      <svg class="h-7 w-7" viewBox="0 0 28 28" fill="none" aria-hidden="true" focusable="false">
-        <path d="M6 6.5h16a3 3 0 0 1 3 3v7.75a3 3 0 0 1-3 3h-8.25L8.5 24v-3.75H6a3 3 0 0 1-3-3V9.5a3 3 0 0 1 3-3Z" fill="currentColor" />
-        <circle cx="10" cy="13.5" r="1.35" fill="#2563EB" />
-        <circle cx="14" cy="13.5" r="1.35" fill="#2563EB" />
-        <circle cx="18" cy="13.5" r="1.35" fill="#2563EB" />
+      <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <rect x="4" y="7" width="16" height="10" rx="3" />
+        <path d="M8 11h.01" />
+        <path d="M16 11h.01" />
+        <path d="M9 16h6" />
+        <path d="M9 4v3" />
+        <path d="M15 4v3" />
       </svg>
     </button>
 
@@ -30,7 +32,7 @@
         </div>
 
         <div v-for="(message, index) in messages" :key="index" :class="message.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
-          <div :class="['max-w-[82%] break-words rounded-lg px-3 py-2 text-sm shadow-sm', message.role === 'user' ? 'bg-brand-500 text-white' : 'border border-slate-200 bg-white text-slate-800']">
+          <div :class="['max-w-[82%] break-words rounded-lg px-3 py-2 text-sm shadow-sm', message.role === 'user' ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-800']">
             {{ message.text }}
           </div>
         </div>
