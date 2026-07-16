@@ -10,3 +10,6 @@ dist/
 # local
 npm-debug.log
 .vite-dev.*.log
+
+#pdf
+*.pdf
