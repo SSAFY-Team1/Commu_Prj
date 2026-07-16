@@ -73,10 +73,66 @@
 import { computed, ref } from 'vue'
 import Spinner from './Spinner.vue'
 import { sendChat } from '../services/chatApi'
-import { searchItems, toChatContext } from '../utils/dataLoader'
+import { getByCategory, searchItems, toChatContext } from '../utils/dataLoader'
 
 const MAX_QUESTION_LENGTH = 300
 const MAX_CONTEXT_ITEMS = 5
+
+const SEOUL_DISTRICTS = [
+  '종로구',
+  '중구',
+  '용산구',
+  '성동구',
+  '광진구',
+  '동대문구',
+  '중랑구',
+  '성북구',
+  '강북구',
+  '도봉구',
+  '노원구',
+  '은평구',
+  '서대문구',
+  '마포구',
+  '양천구',
+  '강서구',
+  '구로구',
+  '금천구',
+  '영등포구',
+  '동작구',
+  '관악구',
+  '서초구',
+  '강남구',
+  '송파구',
+  '강동구'
+]
+
+const CATEGORY_LABELS = [
+  '관광지',
+  '문화시설',
+  '축제공연행사',
+  '여행코스',
+  '레포츠',
+  '숙박',
+  '쇼핑'
+]
+
+function extractDistrict(question) {
+  const lower = question.toLowerCase()
+  return SEOUL_DISTRICTS.find((district) => lower.includes(district.toLowerCase())) || null
+}
+
+function extractCategory(question) {
+  const lower = question.toLowerCase()
+  return CATEGORY_LABELS.find((label) => lower.includes(label.toLowerCase())) || null
+}
+
+function cleanQuestionForSearch(question) {
+  return String(question || '')
+    .replace(/추천해줘|알려줘|어디|좀|해줘|주세요|줘|찾아줘/gi, ' ')
+    .replace(/[^가-힣0-9a-zA-Z\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
 
 const open = ref(false)
 const messages = ref([])
@@ -106,7 +162,21 @@ async function send() {
   loading.value = true
 
   try {
-    const matched = await searchItems(question)
+    const district = extractDistrict(question)
+    const category = extractCategory(question)
+    let matched = []
+
+    if (district) {
+      matched = await searchItems(district)
+    } else if (category) {
+      matched = await getByCategory(category)
+    } else {
+      const cleaned = cleanQuestionForSearch(question)
+      matched = cleaned ? await searchItems(cleaned) : []
+    }
+
+    console.log('검색어:', question, '/ 매칭 건수:', matched.length)
+
     const context = toChatContext(matched, MAX_CONTEXT_ITEMS)
     const response = await sendChat(question, context)
     messages.value.push({ role: 'bot', text: response.answer || '제공된 데이터에서 답변을 찾을 수 없습니다.' })
