@@ -1,6 +1,8 @@
 const MAX_QUESTION_LENGTH = 300
 const MAX_CONTEXT_ITEMS = 5
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses'
+const DEFAULT_MODEL = 'gpt-5-mini'
+const FALLBACK_MODELS = ['gpt-4.1-mini', 'gpt-4o-mini']
 
 function json(statusCode, body) {
   return {
@@ -34,6 +36,57 @@ function extractText(data) {
     }
   }
   return parts.join('\n').trim()
+}
+
+function fallbackAnswer(question, context, reason = '') {
+  if (!context.length) {
+    return `현재 제공 데이터에서 "${question}"와 직접 관련된 항목을 찾지 못했습니다. 지역명, 카테고리, 장소명을 조금 더 구체적으로 입력해 주세요.`
+  }
+
+  const items = context
+    .map((item, index) => {
+      const details = [item.category, item.address, item.tel ? `문의 ${item.tel}` : '']
+        .filter(Boolean)
+        .join(' · ')
+      return `${index + 1}. ${item.title}${details ? ` (${details})` : ''}`
+    })
+    .join('\n')
+
+  const suffix = reason ? '\n\n현재 AI 응답 생성이 원활하지 않아 제공 데이터 기준으로 우선 안내합니다.' : ''
+  return `질문과 관련된 LocalHub 제공 데이터는 다음과 같습니다.\n${items}${suffix}`
+}
+
+async function requestOpenAI(input) {
+  const configuredModel = process.env.OPENAI_MODEL || DEFAULT_MODEL
+  const models = Array.from(new Set([configuredModel, DEFAULT_MODEL, ...FALLBACK_MODELS]))
+  let lastError = null
+
+  for (const model of models) {
+    const response = await fetch(OPENAI_RESPONSES_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model,
+        input,
+        max_output_tokens: 500
+      })
+    })
+
+    const data = await response.json().catch(() => ({}))
+    if (response.ok) return data
+
+    lastError = {
+      status: response.status,
+      message: data?.error?.message || `OpenAI status ${response.status}`
+    }
+
+    if (![400, 404].includes(response.status)) break
+  }
+
+  throw new Error(lastError?.message || 'OpenAI request failed')
 }
 
 export async function handler(event) {
@@ -85,28 +138,10 @@ export async function handler(event) {
   ]
 
   try {
-    const response = await fetch(OPENAI_RESPONSES_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-4.1-mini',
-        input,
-        max_output_tokens: 500
-      })
-    })
-
-    const data = await response.json()
-    if (!response.ok) {
-      console.error('OpenAI request failed', data?.error?.message || response.status)
-      return json(502, { error: 'OpenAI 응답을 가져오지 못했습니다.' })
-    }
-
+    const data = await requestOpenAI(input)
     return json(200, { answer: extractText(data) || '제공된 데이터에서 답변을 찾지 못했습니다.' })
   } catch (error) {
     console.error('Chat function error', error.message)
-    return json(500, { error: '챗봇 처리 중 오류가 발생했습니다.' })
+    return json(200, { answer: fallbackAnswer(question, context, error.message) })
   }
 }
