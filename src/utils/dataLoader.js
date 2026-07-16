@@ -140,6 +140,11 @@ export async function getByCategory(category) {
   return items.filter((item) => item.category === category || item.contentTypeId === String(category))
 }
 
+export async function getByDistrict(district) {
+  const items = await loadAllData()
+  return items.filter((item) => item.district === district)
+}
+
 export async function searchItems(keyword, options = {}) {
   const items = await getByCategory(options.category)
   const query = String(keyword || '').trim().toLowerCase()
