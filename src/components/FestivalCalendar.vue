@@ -91,19 +91,20 @@
           :key="cell.key"
           @click="cell.currentMonth && selectDate(cell.date)"
           :class="[
-            'min-h-[100px] rounded-xl border p-2 transition',
+            'min-h-[110px] overflow-hidden rounded-xl border p-2 transition',
             cell.currentMonth ? 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 cursor-pointer' : 'border-transparent bg-slate-50 text-slate-400 cursor-default',
             isSameDate(cell.date, selectedDate) ? 'border-indigo-500 bg-indigo-50' : ''
           ]"
         >
-          <div class="flex h-full w-full flex-col items-start gap-2 text-left">
+          <div class="flex w-full flex-col items-start gap-2 text-left">
             <span class="text-sm font-medium" :class="cell.currentMonth ? 'text-slate-900' : 'text-slate-400'">{{ cell.date.getDate() }}</span>
             <div class="flex flex-col gap-1">
               <template v-if="cell.events.length">
                 <div
                   v-for="(event, index) in cell.events.slice(0, 2)"
                   :key="event.id + '-' + index"
-                  class="truncate rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-800"
+                  class="inline-flex min-w-0 max-w-full truncate rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-800 overflow-hidden whitespace-nowrap"
+                  :title="event.title"
                 >
                   {{ event.title }}
                 </div>
