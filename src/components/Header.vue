@@ -46,6 +46,7 @@ const navItems = [
   { to: '/', label: '홈' },
   { to: '/category/all', label: '지역 정보' },
   { to: '/dashboard', label: '대시보드' },
-  { to: '/community', label: '커뮤니티' }
+  { to: '/community', label: '커뮤니티' },
+  { to: '/festival-calendar', label: '축제 캘린더' }
 ]
 </script>
