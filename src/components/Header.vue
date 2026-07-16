@@ -4,14 +4,13 @@
       <router-link to="/" class="flex items-center gap-2" @click="open = false">
         <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500 text-white shadow-sm" aria-hidden="true">
           <svg class="h-6 w-6" viewBox="0 0 32 32" fill="none" focusable="false">
-            <path
-              d="M16 29s9-8.3 9-16.1A9 9 0 0 0 7 12.9C7 20.7 16 29 16 29Z"
-              fill="currentColor"
-            />
-            <path d="M11.5 10.5h9v6.25h-4.05l-2.95 2.4v-2.4h-2a2 2 0 0 1-2-2V12.5a2 2 0 0 1 2-2Z" fill="#2563EB" />
-            <circle cx="13.25" cy="13.65" r="0.8" fill="white" />
-            <circle cx="16" cy="13.65" r="0.8" fill="white" />
-            <circle cx="18.75" cy="13.65" r="0.8" fill="white" />
+            <circle cx="16" cy="16" r="4.5" fill="white" />
+            <circle cx="7.5" cy="9" r="3.2" fill="white" opacity="0.92" />
+            <circle cx="24.5" cy="9" r="3.2" fill="white" opacity="0.92" />
+            <circle cx="8.5" cy="23.5" r="3.2" fill="white" opacity="0.92" />
+            <circle cx="23.5" cy="23.5" r="3.2" fill="white" opacity="0.92" />
+            <path d="M10.2 10.8 13.1 13M21.8 10.8 18.9 13M11.2 21.7 13.1 19M20.8 21.7 18.9 19" stroke="white" stroke-width="2.2" stroke-linecap="round" />
+            <circle cx="16" cy="16" r="2" fill="#2563eb" />
           </svg>
         </span>
         <span>

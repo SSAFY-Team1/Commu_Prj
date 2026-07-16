@@ -353,6 +353,11 @@ function updateMarkers() {
   if (!markerLayer || !map) return
   markerLayer.clearLayers()
 
+  if (!selectedDistrict.value && !selectedMapCategory.value) {
+    map.setView([37.5665, 126.978], 11)
+    return
+  }
+
   const bounds = []
   filteredMapItems().forEach((item) => {
     const lat = Number(item.mapy)

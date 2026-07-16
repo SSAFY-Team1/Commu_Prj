@@ -11,11 +11,25 @@
     </section>
 
     <article v-else class="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-      <div class="panel overflow-hidden">
+      <div class="space-y-5">
+        <div class="panel overflow-hidden">
         <div class="flex aspect-[4/3] items-center justify-center bg-slate-100">
           <img v-if="item.image || item.thumbnail" :src="item.image || item.thumbnail" :alt="item.title" class="h-full w-full object-cover" />
           <span v-else class="text-sm text-slate-500">이미지 없음</span>
         </div>
+        </div>
+
+        <section class="panel p-4">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <h2 class="font-bold text-slate-900">지도 위치</h2>
+              <p class="text-sm text-slate-600">제공 좌표를 기반으로 위치를 표시합니다.</p>
+            </div>
+            <span class="rounded bg-brand-50 px-2 py-1 text-xs font-semibold text-brand-700">{{ item.category }}</span>
+          </div>
+          <div v-if="hasCoordinates" ref="detailMapEl" class="h-72 overflow-hidden rounded border border-slate-200 bg-slate-100"></div>
+          <div v-else class="rounded border border-slate-200 bg-slate-50 p-6 text-sm text-slate-600">좌표 정보가 없어 지도를 표시할 수 없습니다.</div>
+        </section>
       </div>
 
       <div class="panel p-5">
@@ -51,7 +65,9 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import { getItemById } from '../utils/dataLoader'
 
 const props = defineProps({
@@ -60,20 +76,56 @@ const props = defineProps({
 
 const loading = ref(true)
 const item = ref(null)
+const detailMapEl = ref(null)
+let detailMap = null
 
 const fullAddress = computed(() => [item.value?.address, item.value?.addressDetail].filter(Boolean).join(' '))
 const coordinates = computed(() => {
   if (!item.value || item.value.mapx === null || item.value.mapy === null) return '좌표 정보 없음'
   return `${item.value.mapy}, ${item.value.mapx}`
 })
+const hasCoordinates = computed(() => item.value && item.value.mapx !== null && item.value.mapy !== null)
 const eventDate = computed(() => [item.value?.eventStartDate, item.value?.eventEndDate].filter(Boolean).join(' ~ '))
 
 async function loadItem() {
   loading.value = true
+  destroyMap()
   item.value = await getItemById(decodeURIComponent(props.id))
   loading.value = false
+  await nextTick()
+  renderMap()
+}
+
+function destroyMap() {
+  if (detailMap) {
+    detailMap.remove()
+    detailMap = null
+  }
+}
+
+function renderMap() {
+  if (!hasCoordinates.value || !detailMapEl.value) return
+
+  const lat = Number(item.value.mapy)
+  const lng = Number(item.value.mapx)
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
+
+  detailMap = L.map(detailMapEl.value, {
+    zoomControl: true,
+    scrollWheelZoom: false
+  }).setView([lat, lng], 15)
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'OpenStreetMap'
+  }).addTo(detailMap)
+
+  L.marker([lat, lng])
+    .addTo(detailMap)
+    .bindPopup(`<strong>${item.value.title}</strong><br>${item.value.address || ''}`)
+    .openPopup()
 }
 
 watch(() => props.id, loadItem)
 onMounted(loadItem)
+onBeforeUnmount(destroyMap)
 </script>
