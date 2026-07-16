@@ -52,6 +52,29 @@
         </div>
       </div>
 
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-500">이번 달 상시/장기 진행 축제</p>
+            <p class="text-sm text-slate-600">장기 진행 축제는 달력 그리드 대신 아래에서 한 번만 표시됩니다.</p>
+          </div>
+          <span class="text-sm text-slate-600">{{ monthLongEvents.length }}개</span>
+        </div>
+        <div class="space-y-3">
+          <div v-if="monthLongEvents.length" class="space-y-3">
+            <div v-for="event in monthLongEvents" :key="event.id" class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <p class="font-semibold text-slate-900">{{ event.title }}</p>
+                <span class="text-sm text-slate-500">{{ formatDisplayDate(event.start) }} ~ {{ formatDisplayDate(event.end) }}</span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="rounded-2xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-600 text-center">
+            이번 달에는 상시/장기 진행 축제가 없습니다.
+          </div>
+        </div>
+      </div>
+
       <div class="grid grid-cols-7 gap-1 rounded-xl border border-slate-200 bg-slate-50 px-2 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-600">
         <div v-for="label in weekdayLabels" :key="label" class="py-2">{{ label }}</div>
       </div>
@@ -82,6 +105,7 @@
                 >
                   {{ event.title }}
                 </div>
+                <div v-if="cell.overflow" class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">+{{ cell.overflow }}개</div>
               </template>
               <template v-else>
                 <span class="h-2 w-full"></span>
@@ -124,10 +148,50 @@
     </div>
 
     <div v-else class="space-y-4">
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-500">장기 진행 축제</p>
+            <p class="text-sm text-slate-600">진행 기간이 14일을 초과하는 축제를 상단에서 별도 표시합니다.</p>
+          </div>
+          <span class="text-sm text-slate-600">{{ longTermFestivals.length }}개</span>
+        </div>
+
+        <div class="space-y-3">
+          <div v-if="longTermFestivals.length" class="space-y-3">
+            <div
+              v-for="event in longTermFestivals"
+              :key="event.id"
+              class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+            >
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p class="text-lg font-semibold text-slate-900">{{ event.title }}</p>
+                  <p class="mt-1 text-sm text-slate-500">{{ formatDisplayDate(event.start) }} ~ {{ formatDisplayDate(event.end) }}</p>
+                </div>
+                <span class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800">장기 진행</span>
+              </div>
+              <p class="mt-3 text-sm text-slate-600">{{ event.address }}</p>
+            </div>
+          </div>
+          <div v-else class="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-slate-600">
+            장기 진행 축제가 없습니다.
+          </div>
+        </div>
+      </div>
+
       <div class="grid gap-4">
-        <div v-if="normalizedFestivals.length" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">단기 축제 목록</h2>
+            <p class="text-sm text-slate-600">시작일 기준으로 정렬된 단기 축제입니다.</p>
+          </div>
+          <span class="text-sm text-slate-600">{{ shortFestivals.length }}개</span>
+        </div>
+
+        <div v-if="shortFestivals.length" class="space-y-4">
           <div
-            v-for="event in normalizedFestivals"
+            v-for="event in shortFestivals"
             :key="event.id"
             :class="['rounded-2xl border p-4 shadow-sm transition', event.past ? 'bg-slate-50 text-slate-500' : 'bg-white text-slate-900']"
           >
@@ -147,7 +211,7 @@
           </div>
         </div>
         <div v-else class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-slate-600">
-          축제 데이터가 없습니다.
+          단기 축제가 없습니다.
         </div>
       </div>
     </div>
@@ -164,6 +228,7 @@ const currentDate = ref(new Date())
 const selectedDate = ref(new Date())
 
 const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토']
+const DAY_MS = 1000 * 60 * 60 * 24
 
 function parseFestivalDate(value, id) {
   if (!value || typeof value !== 'string') {
@@ -213,10 +278,13 @@ function normalizeFestival(item) {
     return null
   }
 
+  const durationDays = Math.round((end.getTime() - start.getTime()) / DAY_MS) + 1
   return {
     ...item,
     start,
     end,
+    durationDays,
+    long: durationDays > 14,
     past: end < new Date(),
     title: item.title || item.name || '제목 없음'
   }
@@ -229,6 +297,9 @@ const normalizedFestivals = computed(() => {
     .sort((a, b) => a.start - b.start)
 })
 
+const longTermFestivals = computed(() => normalizedFestivals.value.filter((event) => event.long))
+const shortFestivals = computed(() => normalizedFestivals.value.filter((event) => !event.long))
+
 const currentMonthLabel = computed(() => {
   return `${currentDate.value.getFullYear()}년 ${String(currentDate.value.getMonth() + 1).padStart(2, '0')}월`
 })
@@ -238,6 +309,14 @@ const monthEnd = computed(() => new Date(currentDate.value.getFullYear(), curren
 
 const monthEvents = computed(() => {
   return normalizedFestivals.value.filter((event) => event.start <= monthEnd.value && event.end >= monthStart.value)
+})
+
+const monthLongEvents = computed(() => {
+  return longTermFestivals.value.filter((event) => event.start <= monthEnd.value && event.end >= monthStart.value)
+})
+
+const monthShortEvents = computed(() => {
+  return shortFestivals.value.filter((event) => event.start <= monthEnd.value && event.end >= monthStart.value)
 })
 
 const selectedDateEvents = computed(() => {
@@ -253,12 +332,13 @@ const calendarCells = computed(() => {
     const date = new Date(firstCellDate)
     date.setDate(firstCellDate.getDate() + index)
 
-    const events = normalizedFestivals.value.filter((event) => event.start <= date && event.end >= date)
+    const events = monthShortEvents.value.filter((event) => event.start <= date && event.end >= date)
     return {
       key: `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
       date,
       currentMonth: date.getMonth() === currentDate.value.getMonth(),
-      events
+      events,
+      overflow: events.length > 2 ? events.length - 2 : 0
     }
   })
 })
