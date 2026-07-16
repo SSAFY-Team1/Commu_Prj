@@ -1,5 +1,7 @@
 const KEY = 'localhub_posts'
 
+export const REGION_OPTIONS = ['서울/경기', '대전/충청', '구미/경북', '광주/전라', '부울경/경남']
+
 function normalizeTags(tags) {
   if (Array.isArray(tags)) {
     return tags.map((tag) => String(tag).trim()).filter(Boolean)
@@ -11,6 +13,10 @@ function normalizeTags(tags) {
     .filter(Boolean)
 }
 
+function normalizeRegion(region) {
+  return REGION_OPTIONS.includes(region) ? region : REGION_OPTIONS[0]
+}
+
 function normalizePost(post) {
   return {
     id: String(post.id || Date.now()),
@@ -18,6 +24,7 @@ function normalizePost(post) {
     content: post.content || '',
     password: post.password || '',
     created: post.created || new Date().toLocaleString(),
+    region: normalizeRegion(post.region),
     category: post.category || '자유',
     tags: normalizeTags(post.tags),
     image: post.image || '',
