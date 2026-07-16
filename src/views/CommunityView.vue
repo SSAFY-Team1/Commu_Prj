@@ -134,21 +134,50 @@
           <textarea v-model="form.content" class="field min-h-64 resize-y" placeholder="내용을 입력하세요"></textarea>
         </label>
 
-        <div class="grid gap-4 md:grid-cols-3">
-          <label class="block">
-            <span class="mb-1 block text-sm font-semibold text-slate-800">권역</span>
-            <select v-model="form.region" class="field">
-              <option v-for="region in REGION_OPTIONS" :key="region" :value="region">{{ region }}</option>
-            </select>
-          </label>
-          <label class="block">
+        <div class="space-y-2">
+          <span class="block text-sm font-semibold text-slate-800">권역</span>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="region in REGION_OPTIONS"
+              :key="region"
+              type="button"
+              :class="['rounded border px-3 py-2 text-sm font-semibold transition', form.region === region ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-700 hover:bg-slate-50']"
+              @click="form.region = region"
+            >
+              {{ region }}
+            </button>
+          </div>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <div>
             <span class="mb-1 block text-sm font-semibold text-slate-800">카테고리</span>
-            <input v-model="form.category" class="field" placeholder="자유" />
-          </label>
-          <label class="block">
+            <div class="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-2">
+              <button
+                v-for="category in CATEGORY_OPTIONS"
+                :key="category"
+                type="button"
+                :class="['rounded-full border px-3 py-1 text-sm font-semibold transition', form.category === category ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50']"
+                @click="form.category = category"
+              >
+                {{ category }}
+              </button>
+            </div>
+          </div>
+          <div>
             <span class="mb-1 block text-sm font-semibold text-slate-800">태그</span>
-            <input v-model="form.tagsText" class="field" placeholder="예: 맛집, 축제, 산책" />
-          </label>
+            <div class="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-2">
+              <button
+                v-for="tag in TAG_OPTIONS"
+                :key="tag"
+                type="button"
+                :class="['rounded-full border px-3 py-1 text-sm font-semibold transition', selectedTags.includes(tag) ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50']"
+                @click="toggleTag(tag)"
+              >
+                #{{ tag }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">
@@ -212,6 +241,8 @@ import {
 } from '../utils/localStorage'
 
 const PAGE_SIZE = 7
+const CATEGORY_OPTIONS = ['자유', '관광지', '맛집', '축제', '교통', '숙박', '질문']
+const TAG_OPTIONS = ['추천', '후기', '맛집', '축제', '산책', '가족', '혼자', '교통']
 
 const mode = ref('list')
 const posts = ref([])
@@ -226,10 +257,10 @@ const form = reactive({
   password: '',
   region: REGION_OPTIONS[0],
   category: '자유',
-  tagsText: '',
   image: '',
   imageName: ''
 })
+const selectedTags = ref([])
 
 const passwordModal = reactive({
   open: false,
@@ -295,7 +326,7 @@ function openEdit(post) {
   form.password = ''
   form.region = post.region || REGION_OPTIONS[0]
   form.category = post.category || '자유'
-  form.tagsText = (post.tags || []).join(', ')
+  selectedTags.value = [...(post.tags || [])]
   form.image = post.image || ''
   form.imageName = post.imageName || ''
   mode.value = 'form'
@@ -317,7 +348,7 @@ function submitPost() {
     password: form.password.trim(),
     region: form.region,
     category: form.category.trim() || '자유',
-    tags: form.tagsText,
+    tags: selectedTags.value,
     image: form.image,
     imageName: form.imageName
   }
@@ -357,7 +388,7 @@ function resetForm() {
   form.password = ''
   form.region = REGION_OPTIONS[0]
   form.category = '자유'
-  form.tagsText = ''
+  selectedTags.value = []
   form.image = ''
   form.imageName = ''
 }
@@ -409,6 +440,12 @@ function toggleLikePost(post) {
 function toggleBookmarkPost(post) {
   toggleBookmark(post.id)
   load()
+}
+
+function toggleTag(tag) {
+  selectedTags.value = selectedTags.value.includes(tag)
+    ? selectedTags.value.filter((item) => item !== tag)
+    : [...selectedTags.value, tag]
 }
 
 function handleImage(event) {
