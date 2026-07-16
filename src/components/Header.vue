@@ -2,16 +2,8 @@
   <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
       <router-link to="/" class="flex items-center gap-2" @click="open = false">
-        <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500 text-white shadow-sm" aria-hidden="true">
-          <svg class="h-6 w-6" viewBox="0 0 32 32" fill="none" focusable="false">
-            <circle cx="16" cy="16" r="4.5" fill="white" />
-            <circle cx="7.5" cy="9" r="3.2" fill="white" opacity="0.92" />
-            <circle cx="24.5" cy="9" r="3.2" fill="white" opacity="0.92" />
-            <circle cx="8.5" cy="23.5" r="3.2" fill="white" opacity="0.92" />
-            <circle cx="23.5" cy="23.5" r="3.2" fill="white" opacity="0.92" />
-            <path d="M10.2 10.8 13.1 13M21.8 10.8 18.9 13M11.2 21.7 13.1 19M20.8 21.7 18.9 19" stroke="white" stroke-width="2.2" stroke-linecap="round" />
-            <circle cx="16" cy="16" r="2" fill="#2563eb" />
-          </svg>
+        <span class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-slate-200" aria-hidden="true">
+          <img src="/favicon.ico" alt="" class="h-8 w-8 object-contain" />
         </span>
         <span>
           <span class="block text-base font-bold leading-tight text-slate-900">LocalHub 서울</span>
