@@ -140,9 +140,9 @@ export async function getByCategory(category) {
   return items.filter((item) => item.category === category || item.contentTypeId === String(category))
 }
 
-export async function getItemById(id) {
+export async function getByDistrict(district) {
   const items = await loadAllData()
-  return items.find((item) => item.id === String(id)) || null
+  return items.filter((item) => item.district === district)
 }
 
 export async function searchItems(keyword, options = {}) {
@@ -192,4 +192,9 @@ export function toChatContext(items = [], limit = 5) {
     address: item.address,
     tel: item.tel
   }))
+}
+
+export async function getItemById(id) {
+  const items = await loadAllData()
+  return items.find((item) => item.id === String(id)) || null
 }
