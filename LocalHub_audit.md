@@ -123,7 +123,7 @@
 | 대화창 UI | 메시지 목록, 입력창, 전송 버튼 | 반영 |
 | 제공 데이터 기반 context | 검색 결과 최대 5건 전달 | 반영 |
 | Netlify Function 호출 | `/.netlify/functions/chat` 호출 | 반영 |
-| 프론트 API 키 노출 방지 | `VITE_OPENAI_API_KEY` 사용 없음 | 반영 |
+| 프론트 API 키 노출 방지 | `OPENAI_API_KEY` 사용 없음 | 반영 |
 | `OPENAI_API_KEY` 서버 환경변수 | Function에서 `process.env.OPENAI_API_KEY` 사용 | 반영 |
 | 오류 처리 | 프론트와 Function 양쪽에 기본 오류 처리 | 반영 |
 
@@ -170,7 +170,7 @@
 | Netlify 배포 | `netlify.toml` 구성 완료 |
 | Netlify Functions 챗봇 | `netlify/functions/chat.mjs` 구현 |
 | `OPENAI_API_KEY` 서버 환경변수 | Function에서만 사용 |
-| `VITE_OPENAI_API_KEY` 금지 | 검색 결과 프론트 코드에 없음 |
+| `OPENAI_API_KEY` 금지 | 검색 결과 프론트 코드에 없음 |
 | 데이터 시각화 대시보드 | DashboardView와 Chart.js 구현 |
 | 데이터 출처/라이선스 문서화 | `서울/SOURCE.md`, README, docs에 반영 |
 | WBS/역할 분담 | docs 하위 문서에 반영 |

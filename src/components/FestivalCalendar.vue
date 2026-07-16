@@ -270,6 +270,13 @@ function formatDisplayDate(date) {
   return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
 }
 
+function compareByStartDesc(a, b) {
+  if (!a?.start && !b?.start) return 0
+  if (!a?.start) return 1
+  if (!b?.start) return -1
+  return b.start - a.start
+}
+
 function normalizeFestival(item) {
   const start = parseFestivalDate(item.eventStartDate, item.id)
   const end = parseFestivalDate(item.eventEndDate, item.id)
@@ -321,7 +328,10 @@ const monthShortEvents = computed(() => {
 })
 
 const selectedDateEvents = computed(() => {
-  return normalizedFestivals.value.filter((event) => event.start <= selectedDate.value && event.end >= selectedDate.value)
+  return normalizedFestivals.value
+    .filter((event) => event.start <= selectedDate.value && event.end >= selectedDate.value)
+    .slice()
+    .sort(compareByStartDesc)
 })
 
 const calendarCells = computed(() => {
@@ -333,7 +343,10 @@ const calendarCells = computed(() => {
     const date = new Date(firstCellDate)
     date.setDate(firstCellDate.getDate() + index)
 
-    const events = monthShortEvents.value.filter((event) => event.start <= date && event.end >= date)
+    const events = monthShortEvents.value
+      .filter((event) => event.start <= date && event.end >= date)
+      .slice()
+      .sort(compareByStartDesc)
     return {
       key: `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
       date,
