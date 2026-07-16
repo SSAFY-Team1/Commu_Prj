@@ -23,7 +23,6 @@
         <div class="h-[260px]">
           <canvas ref="districtCanvas"></canvas>
         </div>
-        
       </div>
     </section>
 
@@ -35,6 +34,24 @@
           {{ selectedDistrict ? `${selectedDistrict} 상세 위치` : '자치구 지도' }}
         </h2>
         <div id="map-container" class="h-[420px] bg-slate-100 rounded-lg overflow-hidden border-2 border-brand-500">
+        </div>
+
+        <div class="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+          <h3 class="font-semibold text-slate-900 mb-3">{{ selectedDistrict ? `${selectedDistrict} 관련 커뮤니티 글` : '자치구를 선택하면 관련 커뮤니티 글이 표시됩니다.' }}</h3>
+          <div v-if="selectedDistrict && relatedCommunityPosts.length === 0" class="text-sm text-slate-600">
+            선택한 자치구에 등록된 커뮤니티 글이 없습니다.
+          </div>
+          <div v-if="!selectedDistrict" class="text-sm text-slate-600">
+            폴라 차트의 자치구 항목을 클릭하면 여기에서 해당 자치구 관련 글을 확인할 수 있습니다.
+          </div>
+          <div v-if="selectedDistrict && relatedCommunityPosts.length > 0" class="grid grid-cols-1 gap-3 xl:grid-cols-5">
+            <article v-for="post in relatedCommunityPosts" :key="post.id" class="rounded-lg border border-slate-200 p-3">
+              <div>
+                <p class="font-semibold text-slate-900">{{ post.title }}</p>
+                <p class="mt-2 text-xs text-slate-500">{{ post.created }}</p>
+              </div>
+            </article>
+          </div>
         </div>
       </div>
 
@@ -69,13 +86,12 @@
           </article>
         </div>
       </div>
-
     </section>
   </div>
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import Chart from 'chart.js/auto'
@@ -92,6 +108,7 @@ const postCount = ref('--')
 const selectedCategory = ref('')
 const selectedDistrict = ref(null)
 const recommendedItems = ref([])
+const posts = ref([])
 const charts = []
 
 // 지도 상태
@@ -111,6 +128,12 @@ function initMap() {
 function isValidSeoulLocation(lat, lng) {
   return lat >= 37.4 && lat <= 37.8 && lng >= 126.7 && lng <= 127.3
 }
+
+const relatedCommunityPosts = computed(() => {
+  if (!selectedDistrict.value) return []
+  const matches = posts.value.filter((post) => post.district === selectedDistrict.value)
+  return matches.sort(() => 0.5 - Math.random()).slice(0, 5)
+})
 
 // 마커 업데이트 로직
 async function updateMarkers(district) {
@@ -201,6 +224,7 @@ onMounted(async () => {
   total.value = stats.total.toLocaleString()
   categoryCount.value = stats.categories.length
   postCount.value = getPosts().length
+  posts.value = getPosts()
   
   initMap()
   requestAnimationFrame(() => createCharts(stats))
