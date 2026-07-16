@@ -3,7 +3,7 @@
     <button
       v-if="!open"
       type="button"
-      class="fixed bottom-4 right-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-white shadow-xl ring-1 ring-white/70 transition hover:-translate-y-0.5 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+      class="fixed bottom-4 right-4 z-[1000] inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-white shadow-xl ring-1 ring-white/70 transition hover:-translate-y-0.5 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
       aria-label="챗봇 열기"
       @click="open = true"
     >
@@ -17,7 +17,7 @@
       </svg>
     </button>
 
-    <section v-if="open" class="fixed inset-x-3 bottom-20 z-50 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl sm:left-auto sm:right-4 sm:w-96">
+    <section v-if="open" class="fixed inset-x-3 bottom-20 z-[1000] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl sm:left-auto sm:right-4 sm:w-96">
       <header class="flex items-center justify-between bg-slate-900 px-4 py-3 text-white">
         <div>
           <h2 class="font-bold">LocalHub 챗봇</h2>
@@ -62,7 +62,7 @@
             전송
           </button>
         </div>
-        <p class="mt-2 text-xs text-slate-500">최대 300자, 관련 데이터 최대 5건만 전송합니다.</p>
+        <p class="mt-2 text-xs text-slate-500">최대 300자, 관련 데이터 최대 12건만 전송합니다.</p>
         <p v-if="errorMessage" class="mt-2 text-xs font-medium text-rose-600">{{ errorMessage }}</p>
       </form>
     </section>
@@ -73,66 +73,13 @@
 import { computed, ref } from 'vue'
 import Spinner from './Spinner.vue'
 import { sendChat } from '../services/chatApi'
-import { getByCategory, searchItems, toChatContext } from '../utils/dataLoader'
+import { searchChatItems, toChatContext } from '../utils/dataLoader'
+import { getPosts } from '../utils/localStorage'
 
 const MAX_QUESTION_LENGTH = 300
-const MAX_CONTEXT_ITEMS = 5
-
-const SEOUL_DISTRICTS = [
-  '종로구',
-  '중구',
-  '용산구',
-  '성동구',
-  '광진구',
-  '동대문구',
-  '중랑구',
-  '성북구',
-  '강북구',
-  '도봉구',
-  '노원구',
-  '은평구',
-  '서대문구',
-  '마포구',
-  '양천구',
-  '강서구',
-  '구로구',
-  '금천구',
-  '영등포구',
-  '동작구',
-  '관악구',
-  '서초구',
-  '강남구',
-  '송파구',
-  '강동구'
-]
-
-const CATEGORY_LABELS = [
-  '관광지',
-  '문화시설',
-  '축제공연행사',
-  '여행코스',
-  '레포츠',
-  '숙박',
-  '쇼핑'
-]
-
-function extractDistrict(question) {
-  const lower = question.toLowerCase()
-  return SEOUL_DISTRICTS.find((district) => lower.includes(district.toLowerCase())) || null
-}
-
-function extractCategory(question) {
-  const lower = question.toLowerCase()
-  return CATEGORY_LABELS.find((label) => lower.includes(label.toLowerCase())) || null
-}
-
-function cleanQuestionForSearch(question) {
-  return String(question || '')
-    .replace(/추천해줘|알려줘|어디|좀|해줘|주세요|줘|찾아줘/gi, ' ')
-    .replace(/[^가-힣0-9a-zA-Z\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
+const MAX_CONTEXT_ITEMS = 12
+const MAX_PLACE_CONTEXT_ITEMS = 8
+const MAX_POST_CONTEXT_ITEMS = 4
 
 const open = ref(false)
 const messages = ref([])
@@ -141,6 +88,46 @@ const loading = ref(false)
 const errorMessage = ref('')
 
 const canSend = computed(() => !!input.value.trim() && !loading.value)
+
+function normalizeText(value) {
+  return String(value || '').toLowerCase()
+}
+
+function searchCommunityPosts(question) {
+  const query = normalizeText(question)
+  const tokens = query
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .split(/\s+/)
+    .filter((token) => token.length >= 2 && !['서울', '게시글', '커뮤니티', '검색', '알려줘', '추천'].includes(token))
+
+  const postIntent = ['게시글', '커뮤니티', '후기', '질문', '글'].some((word) => query.includes(word))
+  if (!postIntent && !tokens.length) return []
+
+  return getPosts()
+    .map((post) => {
+      const searchable = [post.title, post.content, post.district, post.category, ...(post.tags || [])]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+      const score = tokens.reduce((total, token) => total + (searchable.includes(token) ? 1 : 0), postIntent ? 1 : 0)
+      return { post, score }
+    })
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score || Number(b.post.views || 0) - Number(a.post.views || 0))
+    .slice(0, MAX_POST_CONTEXT_ITEMS)
+    .map(({ post }) => ({
+      type: 'post',
+      id: post.id,
+      title: post.title,
+      category: post.category,
+      district: post.district,
+      content: post.content,
+      tags: post.tags,
+      views: post.views,
+      likes: post.likes,
+      bookmarks: post.bookmarks
+    }))
+}
 
 async function send() {
   const question = String(input.value || '').trim()
@@ -162,22 +149,11 @@ async function send() {
   loading.value = true
 
   try {
-    const district = extractDistrict(question)
-    const category = extractCategory(question)
-    let matched = []
-
-    if (district) {
-      matched = await searchItems(district)
-    } else if (category) {
-      matched = await getByCategory(category)
-    } else {
-      const cleaned = cleanQuestionForSearch(question)
-      matched = cleaned ? await searchItems(cleaned) : []
-    }
-
-    console.log('검색어:', question, '/ 매칭 건수:', matched.length)
-
-    const context = toChatContext(matched, MAX_CONTEXT_ITEMS)
+    const matched = await searchChatItems(question, { limit: MAX_PLACE_CONTEXT_ITEMS })
+    const context = [
+      ...toChatContext(matched, MAX_PLACE_CONTEXT_ITEMS),
+      ...searchCommunityPosts(question)
+    ].slice(0, MAX_CONTEXT_ITEMS)
     const response = await sendChat(question, context)
     messages.value.push({ role: 'bot', text: response.answer || '제공된 데이터에서 답변을 찾을 수 없습니다.' })
   } catch (error) {

@@ -2,7 +2,7 @@
 
 서울 지역 관광·문화 정보를 탐색하고, 익명 커뮤니티와 챗봇, 데이터 시각화 대시보드를 함께 제공하는 Vue 3 기반 지역 정보 서비스입니다.
 
-본 프로젝트는 3명의 팀원이 3일 동안 의뢰서 요구사항을 기준으로 구현한 MVP입니다. 제공된 서울 권역 JSON 데이터를 프론트엔드에서 직접 활용하며, 별도 백엔드 서버 없이 정적 SPA와 Netlify Functions로 구성했습니다.
+본 프로젝트는 3명의 팀원이 3일 동안 의뢰서 요구사항을 기준으로 구현한 MVP입니다. 제공된 서울 권역 JSON 데이터를 프론트엔드에서 직접 활용하며, 정적 SPA와 Netlify Functions로 구성했습니다.
 
 ## 주요 기능
 
@@ -55,7 +55,7 @@ http://localhost:8888
 
 ## 환경 변수
 
-챗봇은 프론트엔드에서 OpenAI API 키를 직접 사용하지 않습니다. Vue 앱은 `/.netlify/functions/chat`을 호출하고, Netlify Function이 서버 환경변수 `OPENAI_API_KEY`로 OpenAI API를 호출합니다.
+챗봇은 API 키 노출을 막기 위해 프론트엔드에서 OpenAI API 키를 직접 사용하지 않습니다. Vue 앱은 `/.netlify/functions/chat`을 호출하고, Netlify Function이 서버 환경변수 `OPENAI_API_KEY`로 OpenAI API를 호출합니다.
 
 프로젝트 루트에 `.env` 파일을 만들고 아래처럼 설정합니다.
 
@@ -65,7 +65,7 @@ OPENAI_API_KEY=sk-xxxx
 
 `.env` 파일은 Git에 포함하지 않습니다. 현재 `.gitignore`에 등록되어 있습니다.
 
-Netlify 배포 환경에서는 Netlify 사이트 설정에서 환경변수를 등록합니다.
+Netlify 배포 환경에서는 Netlify 사이트 설정에서 환경변수를 등록한 뒤 다시 배포합니다.
 
 ```text
 Site configuration > Environment variables > OPENAI_API_KEY

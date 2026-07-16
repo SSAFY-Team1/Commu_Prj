@@ -1,5 +1,13 @@
-import { describe, expect, it } from 'vitest'
-import { aggregateByCategory, aggregateByDistrict, extractDistrict, normalizeItem, toChatContext } from './dataLoader'
+import { describe, expect, it, vi } from 'vitest'
+import {
+  aggregateByCategory,
+  aggregateByDistrict,
+  analyzeChatQuestion,
+  extractDistrict,
+  normalizeItem,
+  searchChatItems,
+  toChatContext
+} from './dataLoader'
 
 describe('dataLoader helpers', () => {
   it('원본 TourAPI 항목을 화면용 데이터로 정규화한다', () => {
@@ -49,6 +57,74 @@ describe('dataLoader helpers', () => {
       1
     )
 
-    expect(context).toEqual([{ id: '1', title: 'A', name: 'A', category: '관광지', address: 'addr', tel: '02' }])
+    expect(context).toEqual([
+      {
+        type: 'place',
+        id: '1',
+        title: 'A',
+        name: 'A',
+        category: '관광지',
+        district: undefined,
+        address: 'addr',
+        tel: '02',
+        eventStartDate: '',
+        eventEndDate: '',
+        eventPlace: '',
+        playtime: '',
+        fee: '',
+        program: '',
+        description: undefined
+      }
+    ])
+  })
+
+  it('챗봇 질문에서 자치구와 카테고리 의도를 추출한다', () => {
+    expect(analyzeChatQuestion('종로구 관광지 추천해줘')).toMatchObject({
+      district: '종로구',
+      category: '관광지'
+    })
+
+    expect(analyzeChatQuestion('서울 축제 알려줘')).toMatchObject({
+      district: '',
+      category: '축제공연행사'
+    })
+  })
+
+  it('문장형 챗봇 질문으로 축제 데이터를 찾는다', async () => {
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = vi.fn(async (url) => {
+      const path = String(url)
+      if (path.includes('manifest.json')) {
+        return {
+          ok: true,
+          json: async () => [{ file: '서울_축제공연행사.json', category: '축제공연행사', contentTypeId: '15' }]
+        }
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          items: [
+            {
+              contentid: 'festival-1',
+              contenttypeid: '15',
+              title: '서울빛초롱축제',
+              addr1: '서울특별시 종로구 세종대로',
+              eventstartdate: '20261201',
+              eventenddate: '20261231'
+            }
+          ]
+        })
+      }
+    })
+
+    const results = await searchChatItems('서울 축제 알려줘')
+
+    expect(results[0]).toMatchObject({
+      title: '서울빛초롱축제',
+      category: '축제공연행사',
+      district: '종로구'
+    })
+
+    globalThis.fetch = originalFetch
   })
 })
