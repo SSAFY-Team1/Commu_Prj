@@ -14,10 +14,11 @@ function normalizeContext(context) {
   if (!Array.isArray(context)) return []
 
   return context.slice(0, MAX_CONTEXT_ITEMS).map((item) => ({
-    title: String(item.title || item.name || '').slice(0, 80),
-    category: String(item.category || '').slice(0, 40),
-    address: String(item.address || '').slice(0, 120),
-    tel: String(item.tel || '').slice(0, 40)
+    id: String(item?.id || '').slice(0, 80),
+    title: String(item?.title || item?.name || '').slice(0, 80),
+    category: String(item?.category || '').slice(0, 40),
+    address: String(item?.address || '').slice(0, 120),
+    tel: String(item?.tel || '').slice(0, 40)
   }))
 }
 
@@ -55,7 +56,16 @@ export async function handler(event) {
     return json(400, { error: `question must be ${MAX_QUESTION_LENGTH} characters or less` })
   }
 
-  const context = normalizeContext(payload.context)
+  const rawContext = payload.context
+  if (rawContext !== undefined && !Array.isArray(rawContext)) {
+    return json(400, { error: 'context는 배열이어야 합니다.' })
+  }
+
+  if (Array.isArray(rawContext) && rawContext.length > MAX_CONTEXT_ITEMS) {
+    return json(400, { error: `context는 최대 ${MAX_CONTEXT_ITEMS}개만 허용됩니다.` })
+  }
+
+  const context = normalizeContext(rawContext)
   if (!process.env.OPENAI_API_KEY) {
     return json(200, {
       answer: `로컬 스텁 응답입니다. Netlify 환경변수 OPENAI_API_KEY가 설정되면 실제 OpenAI API로 답변합니다. 질문: ${question}`
