@@ -30,13 +30,13 @@
         </button>
       </div>
 
-      <div class="overflow-hidden border border-slate-300 bg-white">
-        <table class="w-full table-fixed text-sm">
+      <div class="overflow-x-auto border border-slate-300 bg-white">
+        <table class="min-w-[760px] w-full table-fixed text-sm">
           <thead class="border-b border-slate-900 bg-slate-50 text-slate-800">
             <tr>
               <th class="w-16 px-3 py-3 text-center font-semibold">번호</th>
               <th class="px-3 py-3 text-left font-semibold">제목</th>
-              <th class="hidden w-24 px-3 py-3 text-center font-semibold md:table-cell">권역</th>
+              <th class="hidden w-24 px-3 py-3 text-center font-semibold md:table-cell">자치구</th>
               <th class="hidden w-24 px-3 py-3 text-center font-semibold lg:table-cell">태그</th>
               <th class="w-20 px-3 py-3 text-center font-semibold">조회</th>
               <th class="hidden w-20 px-3 py-3 text-center font-semibold sm:table-cell">좋아요</th>
@@ -59,7 +59,7 @@
                   <span v-if="post.bookmarked">북마크됨</span>
                 </div>
               </td>
-              <td class="hidden px-3 py-3 text-center text-slate-700 md:table-cell">{{ post.region }}</td>
+              <td class="hidden px-3 py-3 text-center text-slate-700 md:table-cell">{{ post.district }}</td>
               <td class="hidden px-3 py-3 text-center lg:table-cell">
                 <span v-if="post.tags.length" class="rounded bg-slate-100 px-2 py-1 text-xs text-slate-600">#{{ post.tags[0] }}</span>
                 <span v-else class="text-slate-400">-</span>
@@ -89,10 +89,10 @@
 
     <article v-else-if="mode === 'detail' && selectedPost" class="space-y-5">
       <section class="border-b border-slate-200 pb-5">
-        <p class="text-xs text-slate-500">홈 &gt; {{ selectedPost.region }} 게시판 &gt; 게시글 상세</p>
+        <p class="text-xs text-slate-500">홈 &gt; {{ selectedPost.district }} 게시판 &gt; 게시글 상세</p>
         <h2 class="mt-3 text-2xl font-bold text-slate-900">{{ selectedPost.title }}</h2>
         <div class="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
-          <span>권역: {{ selectedPost.region }}</span>
+          <span>자치구: {{ selectedPost.district }}</span>
           <span>작성일: {{ selectedPost.created }}</span>
           <span>조회수 {{ selectedPost.views }}</span>
           <span>좋아요 {{ selectedPost.likes }}</span>
@@ -109,10 +109,27 @@
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <button type="button" class="rounded border border-slate-900 px-5 py-2 text-sm font-semibold text-slate-900" @click="goList">목록으로</button>
         <div class="flex flex-wrap gap-2">
-          <button type="button" class="rounded border px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" @click="toggleLikePost(selectedPost)">
+          <button type="button" :class="['inline-flex items-center gap-2 rounded border px-4 py-2 text-sm font-semibold hover:bg-slate-50', selectedPost.liked ? 'border-rose-300 text-rose-600' : 'text-slate-700']" @click="toggleLikePost(selectedPost)">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M20.8 5.6c-1.6-1.7-4.1-1.8-5.8-.2L12 8.2 9 5.4c-1.7-1.6-4.2-1.5-5.8.2-1.7 1.8-1.6 4.6.2 6.3L12 20l8.6-8.1c1.8-1.7 1.9-4.5.2-6.3Z"
+                :fill="selectedPost.liked ? 'currentColor' : 'none'"
+                stroke="currentColor"
+                stroke-width="1.8"
+              />
+            </svg>
             {{ selectedPost.liked ? '좋아요 취소' : '좋아요' }}
           </button>
-          <button type="button" class="rounded border px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" @click="toggleBookmarkPost(selectedPost)">
+          <button type="button" :class="['inline-flex items-center gap-2 rounded border px-4 py-2 text-sm font-semibold hover:bg-slate-50', selectedPost.bookmarked ? 'border-brand-300 text-brand-700' : 'text-slate-700']" @click="toggleBookmarkPost(selectedPost)">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M6 4.5A2.5 2.5 0 0 1 8.5 2h7A2.5 2.5 0 0 1 18 4.5V21l-6-3.5L6 21V4.5Z"
+                :fill="selectedPost.bookmarked ? 'currentColor' : 'none'"
+                stroke="currentColor"
+                stroke-linejoin="round"
+                stroke-width="1.8"
+              />
+            </svg>
             {{ selectedPost.bookmarked ? '북마크 해제' : '북마크' }}
           </button>
           <button type="button" class="rounded border border-slate-900 px-5 py-2 text-sm font-semibold text-slate-900" @click="askPassword('edit', selectedPost)">수정</button>
@@ -135,17 +152,19 @@
         </label>
 
         <div class="space-y-2">
-          <span class="block text-sm font-semibold text-slate-800">권역</span>
-          <div class="flex flex-wrap gap-2">
+          <span class="block text-sm font-semibold text-slate-800">자치구</span>
+          <div class="max-h-36 overflow-y-auto rounded border border-slate-200 bg-white p-2">
+            <div class="flex flex-wrap gap-2">
             <button
-              v-for="region in REGION_OPTIONS"
-              :key="region"
+              v-for="district in DISTRICT_OPTIONS"
+              :key="district"
               type="button"
-              :class="['rounded border px-3 py-2 text-sm font-semibold transition', form.region === region ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-700 hover:bg-slate-50']"
-              @click="form.region = region"
+              :class="['rounded-full border px-3 py-1 text-sm font-semibold transition', form.district === district ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-700 hover:bg-slate-50']"
+              @click="form.district = district"
             >
-              {{ region }}
+              {{ district }}
             </button>
+            </div>
           </div>
         </div>
 
@@ -230,7 +249,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import {
-  REGION_OPTIONS,
+  DISTRICT_OPTIONS,
   deletePost,
   getPosts,
   incrementViews,
@@ -255,7 +274,7 @@ const form = reactive({
   title: '',
   content: '',
   password: '',
-  region: REGION_OPTIONS[0],
+  district: '중구',
   category: '자유',
   image: '',
   imageName: ''
@@ -275,7 +294,7 @@ const filteredPosts = computed(() => {
   if (!query) return posts.value
 
   return posts.value.filter((post) =>
-    [post.title, post.content, post.region, post.category, ...(post.tags || [])]
+    [post.title, post.content, post.district, post.category, ...(post.tags || [])]
       .filter(Boolean)
       .some((value) => String(value).toLowerCase().includes(query))
   )
@@ -324,7 +343,7 @@ function openEdit(post) {
   form.title = post.title
   form.content = post.content
   form.password = ''
-  form.region = post.region || REGION_OPTIONS[0]
+  form.district = post.district || '중구'
   form.category = post.category || '자유'
   selectedTags.value = [...(post.tags || [])]
   form.image = post.image || ''
@@ -346,7 +365,7 @@ function submitPost() {
     title: form.title.trim(),
     content: form.content.trim(),
     password: form.password.trim(),
-    region: form.region,
+    district: form.district,
     category: form.category.trim() || '자유',
     tags: selectedTags.value,
     image: form.image,
@@ -386,7 +405,7 @@ function resetForm() {
   form.title = ''
   form.content = ''
   form.password = ''
-  form.region = REGION_OPTIONS[0]
+  form.district = '중구'
   form.category = '자유'
   selectedTags.value = []
   form.image = ''
