@@ -61,7 +61,6 @@ http://localhost:8888
 
 ```env
 OPENAI_API_KEY=sk-xxxx
-OPENAI_MODEL=gpt-5-mini
 ```
 
 `.env` 파일은 Git에 포함하지 않습니다. 현재 `.gitignore`에 등록되어 있습니다.
