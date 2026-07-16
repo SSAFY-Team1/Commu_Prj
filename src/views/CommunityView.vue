@@ -36,7 +36,8 @@
             <tr>
               <th class="w-16 px-3 py-3 text-center font-semibold">번호</th>
               <th class="px-3 py-3 text-left font-semibold">제목</th>
-              <th class="hidden w-24 px-3 py-3 text-center font-semibold md:table-cell">태그</th>
+              <th class="hidden w-24 px-3 py-3 text-center font-semibold md:table-cell">권역</th>
+              <th class="hidden w-24 px-3 py-3 text-center font-semibold lg:table-cell">태그</th>
               <th class="w-20 px-3 py-3 text-center font-semibold">조회</th>
               <th class="hidden w-20 px-3 py-3 text-center font-semibold sm:table-cell">좋아요</th>
               <th class="w-28 px-3 py-3 text-center font-semibold">작성일</th>
@@ -44,7 +45,7 @@
           </thead>
           <tbody class="divide-y divide-slate-200">
             <tr v-if="pagedPosts.length === 0">
-              <td colspan="6" class="px-4 py-10 text-center text-slate-500">게시글이 없습니다.</td>
+              <td colspan="7" class="px-4 py-10 text-center text-slate-500">게시글이 없습니다.</td>
             </tr>
             <tr v-for="(post, index) in pagedPosts" :key="post.id" class="hover:bg-slate-50">
               <td class="px-3 py-3 text-center text-slate-500">{{ rowNumber(index) }}</td>
@@ -58,7 +59,8 @@
                   <span v-if="post.bookmarked">북마크됨</span>
                 </div>
               </td>
-              <td class="hidden px-3 py-3 text-center md:table-cell">
+              <td class="hidden px-3 py-3 text-center text-slate-700 md:table-cell">{{ post.region }}</td>
+              <td class="hidden px-3 py-3 text-center lg:table-cell">
                 <span v-if="post.tags.length" class="rounded bg-slate-100 px-2 py-1 text-xs text-slate-600">#{{ post.tags[0] }}</span>
                 <span v-else class="text-slate-400">-</span>
               </td>
@@ -87,9 +89,10 @@
 
     <article v-else-if="mode === 'detail' && selectedPost" class="space-y-5">
       <section class="border-b border-slate-200 pb-5">
-        <p class="text-xs text-slate-500">홈 &gt; 서울/경기 게시판 &gt; 게시글 상세</p>
+        <p class="text-xs text-slate-500">홈 &gt; {{ selectedPost.region }} 게시판 &gt; 게시글 상세</p>
         <h2 class="mt-3 text-2xl font-bold text-slate-900">{{ selectedPost.title }}</h2>
         <div class="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
+          <span>권역: {{ selectedPost.region }}</span>
           <span>작성일: {{ selectedPost.created }}</span>
           <span>조회수 {{ selectedPost.views }}</span>
           <span>좋아요 {{ selectedPost.likes }}</span>
@@ -131,7 +134,13 @@
           <textarea v-model="form.content" class="field min-h-64 resize-y" placeholder="내용을 입력하세요"></textarea>
         </label>
 
-        <div class="grid gap-4 md:grid-cols-2">
+        <div class="grid gap-4 md:grid-cols-3">
+          <label class="block">
+            <span class="mb-1 block text-sm font-semibold text-slate-800">권역</span>
+            <select v-model="form.region" class="field">
+              <option v-for="region in REGION_OPTIONS" :key="region" :value="region">{{ region }}</option>
+            </select>
+          </label>
           <label class="block">
             <span class="mb-1 block text-sm font-semibold text-slate-800">카테고리</span>
             <input v-model="form.category" class="field" placeholder="자유" />
@@ -192,6 +201,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import {
+  REGION_OPTIONS,
   deletePost,
   getPosts,
   incrementViews,
@@ -214,6 +224,7 @@ const form = reactive({
   title: '',
   content: '',
   password: '',
+  region: REGION_OPTIONS[0],
   category: '자유',
   tagsText: '',
   image: '',
@@ -233,7 +244,7 @@ const filteredPosts = computed(() => {
   if (!query) return posts.value
 
   return posts.value.filter((post) =>
-    [post.title, post.content, post.category, ...(post.tags || [])]
+    [post.title, post.content, post.region, post.category, ...(post.tags || [])]
       .filter(Boolean)
       .some((value) => String(value).toLowerCase().includes(query))
   )
@@ -282,6 +293,7 @@ function openEdit(post) {
   form.title = post.title
   form.content = post.content
   form.password = ''
+  form.region = post.region || REGION_OPTIONS[0]
   form.category = post.category || '자유'
   form.tagsText = (post.tags || []).join(', ')
   form.image = post.image || ''
@@ -303,6 +315,7 @@ function submitPost() {
     title: form.title.trim(),
     content: form.content.trim(),
     password: form.password.trim(),
+    region: form.region,
     category: form.category.trim() || '자유',
     tags: form.tagsText,
     image: form.image,
@@ -342,6 +355,7 @@ function resetForm() {
   form.title = ''
   form.content = ''
   form.password = ''
+  form.region = REGION_OPTIONS[0]
   form.category = '자유'
   form.tagsText = ''
   form.image = ''
