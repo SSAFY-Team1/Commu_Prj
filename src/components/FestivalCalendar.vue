@@ -65,7 +65,7 @@
           <span :class="['text-lg transition-transform', isLongTermExpanded ? 'rotate-180' : 'rotate-0']">▾</span>
         </button>
 
-        <div v-if="monthLongEvents.length && isLongTermExpanded.value" class="mt-4 flex flex-wrap gap-2">
+        <div v-if="monthLongEvents.length && isLongTermExpanded" class="mt-4 flex flex-wrap gap-2">
           <div
             v-for="event in monthLongEvents"
             :key="event.id"
@@ -89,18 +89,14 @@
         <div
           v-for="cell in calendarCells"
           :key="cell.key"
+          @click="cell.currentMonth && selectDate(cell.date)"
           :class="[
             'min-h-[100px] rounded-xl border p-2 transition',
-            cell.currentMonth ? 'border-slate-200 bg-white hover:border-slate-300' : 'border-transparent bg-slate-50 text-slate-400',
+            cell.currentMonth ? 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 cursor-pointer' : 'border-transparent bg-slate-50 text-slate-400 cursor-default',
             isSameDate(cell.date, selectedDate) ? 'border-indigo-500 bg-indigo-50' : ''
           ]"
         >
-          <button
-            type="button"
-            class="flex w-full flex-col items-start gap-2 text-left"
-            @click="selectDate(cell.date)"
-            :disabled="!cell.currentMonth"
-          >
+          <div class="flex h-full w-full flex-col items-start gap-2 text-left">
             <span class="text-sm font-medium" :class="cell.currentMonth ? 'text-slate-900' : 'text-slate-400'">{{ cell.date.getDate() }}</span>
             <div class="flex flex-col gap-1">
               <template v-if="cell.events.length">
@@ -117,7 +113,7 @@
                 <span class="h-2 w-full"></span>
               </template>
             </div>
-          </button>
+          </div>
         </div>
       </div>
 
@@ -167,7 +163,7 @@
           <span :class="['text-lg transition-transform', isLongTermExpanded ? 'rotate-180' : 'rotate-0']">▾</span>
         </button>
 
-        <div v-if="longTermFestivals.length && isLongTermExpanded.value" class="mt-4 flex flex-wrap gap-2">
+        <div v-if="longTermFestivals.length && isLongTermExpanded" class="mt-4 flex flex-wrap gap-2">
           <div
             v-for="event in longTermFestivals"
             :key="event.id"
