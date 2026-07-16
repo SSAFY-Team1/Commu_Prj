@@ -6,6 +6,7 @@ import CategoryView from '../views/CategoryView.vue'
 import PlaceDetailView from '../views/PlaceDetailView.vue'
 import DataSourceView from '../views/DataSourceView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
+import FestivalCalendar from '../components/FestivalCalendar.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: HomeView },
@@ -14,6 +15,7 @@ const routes = [
   { path: '/category/:id', name: 'Category', component: CategoryView, props: true },
   { path: '/place/:id', name: 'PlaceDetail', component: PlaceDetailView, props: true },
   { path: '/data-source', name: 'DataSource', component: DataSourceView },
+  { path: '/festival-calendar', name: 'FestivalCalendar', component: FestivalCalendar },
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFoundView }
 ]
 

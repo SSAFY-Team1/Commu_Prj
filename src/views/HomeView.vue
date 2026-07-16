@@ -11,6 +11,7 @@
           <router-link to="/category/all" class="rounded bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-brand-50">지역 정보 보기</router-link>
           <router-link to="/dashboard" class="rounded border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">대시보드</router-link>
           <router-link to="/community" class="rounded border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">커뮤니티</router-link>
+          <router-link to="/festival-calendar" class="rounded border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">축제 캘린더</router-link>
         </div>
       </div>
 
